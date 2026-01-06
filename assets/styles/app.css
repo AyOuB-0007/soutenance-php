@@ -1,9 +1,3 @@
-@import './admin.css';
-@import './cart.css';
-@import './login.css';
-@import './shop.css';
-@import './sidebar.css';
-
 body {
     background-color: skyblue;
 }
