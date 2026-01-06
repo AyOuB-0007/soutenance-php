@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+<div class="login-container">
+    {# Registration Form Box #}
+    <div id="registerBox" class="login-box visible-form">
+        <h1 class="login-title">Inscription</h1>
+        <p class="login-subtitle">Créez votre compte</p>
+
+        {{ form_errors(registrationForm) }}
+        {{ form_start(registrationForm, {'action': path('app_register'), 'attr': {'class': 'login-form'}}) }}
+            
+            <div class="input-group">
+                {{ form_label(registrationForm.email) }}
+                {{ form_widget(registrationForm.email, {'attr': {'required': 'required'}}) }}
+                {{ form_errors(registrationForm.email) }}
+            </div>
+
+            <div class="input-group">
+                {{ form_label(registrationForm.plainPassword, 'Mot de passe') }}
+                {{ form_widget(registrationForm.plainPassword, {'attr': {'required': 'required'}}) }}
+                {{ form_errors(registrationForm.plainPassword) }}
+            </div>
+
+            <button class="btn-login" type="submit">
+                S'inscrire
+            </button>
+
+        {{ form_end(registrationForm) }}
+
+        <p class="toggle-form-text">
+            Déjà un compte ? <a href="{{ path('app_login') }}" id="showLogin">Connectez-vous</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

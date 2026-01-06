@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion / Inscription{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+<div class="login-container">
+
+    {# Login Form Box #}
+    <div id="loginBox" class="login-box visible-form">
+        <h1 class="login-title">Connexion</h1>
+        <p class="login-subtitle">Accédez à votre espace</p>
+
+        {% if error %}
+            <div class="error-message">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_login') }}" class="login-form">
+            <div class="input-group">
+                <label for="inputEmail">Email</label>
+                <input type="email" name="email" id="inputEmail" value="{{ last_username }}" required autofocus>
+            </div>
+
+            <div class="input-group">
+                <label for="inputPassword">Mot de passe</label>
+                <input type="password" name="password" id="inputPassword" required>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <button class="btn-login" type="submit">
+                Se connecter
+            </button>
+        </form>
+
+        <p class="toggle-form-text">
+            Vous êtes nouveau ? <a href="{{ path('app_register_form') }}">Créez un compte</a>
+        </p>
+    </div>
+</div>
+
+{% endblock %}
