@@ -1,0 +1,167 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Notre Carte - Restaurant{% endblock %}
+
+{% block body %}
+<div class="menu-page-wrapper">
+    <div class="menu-page-container">
+        <div class="menu-header-card">
+            <h1>
+                <i class="fas fa-utensils"></i>
+                Notre Carte
+            </h1>
+            <p>
+                Découvrez nos spécialités marocaines authentiques, préparées avec des ingrédients frais et de qualité
+            </p>
+        </div>
+
+        {% if categories|length > 0 %}
+            {% for category in categories %}
+                <div class="menu-category-card" id="category-{{ category.id }}">
+                    <div class="category-header-simple" onclick="toggleCategory({{ loop.index }})">>
+                        <h2>
+                            <i class="fas fa-utensils"></i>
+                            {{ category.nomMenu }}
+                        </h2>
+                        <span class="expand-icon" id="icon-{{ loop.index }}">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    
+                    {% set categoryProducts = products|filter(p => p.menu and p.menu.id == category.id) %}
+                    
+                    <div class="category-content-simple" id="content-{{ loop.index }}">
+                        {% if categoryProducts|length > 0 %}
+                            <div class="products-grid">
+                                {% for product in categoryProducts %}
+                                    <div class="product-card-menu">
+                                        <div class="product-image-menu">
+                                            {% if product.imageUrl %}
+                                                <img src="{{ product.imageUrl }}" alt="{{ product.nomArticle }}" />
+                                            {% else %}
+                                                <i class="fas fa-utensils"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="product-info-menu">
+                                            <h3>{{ product.nomArticle }}</h3>
+                                            {% if product.description %}
+                                                <p>{{ product.description }}</p>
+                                            {% endif %}
+                                            <div class="product-price-container">
+                                                <span class="product-price-badge">{{ product.prix }} DH</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-category-message">
+                                <i class="fas fa-utensils"></i>
+                                <p>Aucun produit dans cette catégorie pour le moment</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-menu-message">
+                <i class="fas fa-book-open"></i>
+                <h3>Carte en cours de préparation</h3>
+                <p>Notre équipe travaille actuellement sur la mise à jour de notre carte. Revenez bientôt !</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleCategory(categoryId) {
+    const content = document.getElementById('content-' + categoryId);
+    const icon = document.getElementById('icon-' + categoryId);
+    
+    if (!content || !icon) {
+        console.error('Elements not found for category', categoryId);
+        return;
+    }
+    
+    const header = content.previousElementSibling;
+    
+    // Fermer toutes les autres catégories
+    document.querySelectorAll('.category-content-simple').forEach(function(otherContent) {
+        if (otherContent !== content) {
+            otherContent.classList.remove('open');
+            const otherId = otherContent.id.split('-')[1];
+            const otherIcon = document.getElementById('icon-' + otherId);
+            const otherHeader = otherContent.previousElementSibling;
+            if (otherIcon) {
+                otherIcon.innerHTML = '<i class="fas fa-chevron-down"></i>';
+                otherIcon.style.transform = '';
+            }
+            if (otherHeader) {
+                otherHeader.style.background = '';
+            }
+        }
+    });
+    
+    // Toggle la catégorie actuelle
+    if (content.classList.contains('open')) {
+        content.classList.remove('open');
+        icon.innerHTML = '<i class="fas fa-chevron-down"></i>';
+        icon.style.transform = '';
+        if (header) {
+            header.style.background = '';
+        }
+    } else {
+        content.classList.add('open');
+        icon.innerHTML = '<i class="fas fa-chevron-up"></i>';
+        icon.style.transform = 'rotate(180deg)';
+        if (header) {
+            header.style.background = '#f3f4f6';
+        }
+    }
+}
+
+// Hover effects for headers
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.category-header-simple').forEach(function(header) {
+        header.addEventListener('mouseenter', function() {
+            if (this.style.background !== 'rgb(243, 244, 246)') {
+                this.style.background = '#f9fafb';
+            }
+        });
+        header.addEventListener('mouseleave', function() {
+            if (this.style.background !== 'rgb(243, 244, 246)') {
+                this.style.background = '';
+            }
+        });
+    });
+    
+    // Ouvrir automatiquement la catégorie si on arrive avec une ancre
+    if (window.location.hash) {
+        const hash = window.location.hash;
+        const categoryElement = document.querySelector(hash);
+        
+        if (categoryElement) {
+            // Trouver l'index de la catégorie
+            const allCategories = document.querySelectorAll('.menu-category-card');
+            let categoryIndex = 0;
+            
+            allCategories.forEach(function(cat, index) {
+                if (cat.id === hash.substring(1)) {
+                    categoryIndex = index + 1; // +1 car loop.index commence à 1
+                }
+            });
+            
+            if (categoryIndex > 0) {
+                // Ouvrir la catégorie
+                toggleCategory(categoryIndex);
+                
+                // Scroller vers la catégorie après un court délai
+                setTimeout(function() {
+                    categoryElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

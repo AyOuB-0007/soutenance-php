@@ -1,0 +1,395 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/dashboard.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<style>
+/* RESET AND OVERRIDE ALL EXISTING STYLES */
+.dashboard-container * {
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.dashboard-container {
+    background: #f8fafc !important;
+    min-height: 100vh !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    color: #111827 !important;
+    padding: 40px 20px !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.dashboard-wrapper {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+/* HEADER SECTION */
+.dashboard-header {
+    background: white !important;
+    border-radius: 16px !important;
+    padding: 32px 40px !important;
+    margin-bottom: 32px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: relative !important;
+    z-index: 3 !important;
+    text-align: center !important;
+}
+
+.header-content h1 {
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    margin-bottom: 8px !important;
+}
+
+/* STATS CARDS */
+.stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 24px !important;
+    margin-bottom: 32px !important;
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+.stat-card {
+    background: white !important;
+    border-radius: 16px !important;
+    padding: 28px 24px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    position: relative !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    user-select: none !important;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+.stat-card.active {
+    border: 2px solid #ff8c00 !important;
+    box-shadow: 0 8px 30px rgba(255, 140, 0, 0.15) !important;
+    transform: translateY(-2px) !important;
+}
+
+.stat-icon {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px !important;
+    flex-shrink: 0 !important;
+}
+
+.stat-icon.orange {
+    background: #ff8c00 !important;
+    color: white !important;
+}
+
+.stat-icon.blue {
+    background: #3b82f6 !important;
+    color: white !important;
+}
+
+.stat-icon.green {
+    background: #10b981 !important;
+    color: white !important;
+}
+
+.stat-icon.purple {
+    background: #8b5cf6 !important;
+    color: white !important;
+}
+
+.stat-content {
+    flex: 1 !important;
+}
+
+.stat-number {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    line-height: 1 !important;
+    margin-bottom: 4px !important;
+}
+
+.stat-label {
+    font-size: 14px !important;
+    color: #6b7280 !important;
+    font-weight: 500 !important;
+}
+
+/* MANAGEMENT SECTION */
+.management-section {
+    background: white !important;
+    border-radius: 16px !important;
+    padding: 40px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    min-height: 500px !important;
+}
+
+.section-content {
+    display: none !important;
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
+}
+
+.section-content.active {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+.section-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 32px !important;
+    padding-bottom: 16px !important;
+    border-bottom: 2px solid #f3f4f6 !important;
+}
+
+.section-title {
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.section-title i {
+    color: #ff8c00 !important;
+}
+
+.add-button {
+    background: #ff8c00 !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 24px !important;
+    border-radius: 10px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+.add-button:hover {
+    background: #e67e00 !important;
+    transform: translateY(-1px) !important;
+}
+
+/* EMPTY STATE */
+.empty-state {
+    text-align: center !important;
+    padding: 60px 20px !important;
+}
+
+.empty-state-icon {
+    width: 80px !important;
+    height: 80px !important;
+    background: #f3f4f6 !important;
+    border-radius: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto 24px auto !important;
+    font-size: 32px !important;
+    color: #9ca3af !important;
+}
+
+.empty-state h3 {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    margin-bottom: 12px !important;
+}
+
+.empty-state p {
+    font-size: 16px !important;
+    color: #6b7280 !important;
+    margin-bottom: 24px !important;
+    line-height: 1.5 !important;
+}
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-wrapper">
+        
+        <!-- HEADER -->
+        <div class="dashboard-header">
+            <div class="header-content">
+                <h1>Admin Dashboard</h1>
+            </div>
+        </div>
+
+        <!-- STATS CARDS -->
+        <div class="stats-grid">
+            <div class="stat-card active" data-section="products" onclick="showSection('products')">
+                <div class="stat-icon orange">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ products is defined ? products|length : 0 }}</div>
+                    <div class="stat-label">Produits</div>
+                </div>
+            </div>
+
+            <div class="stat-card" data-section="categories" onclick="showSection('categories')">
+                <div class="stat-icon blue">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">15</div>
+                    <div class="stat-label">Catégories</div>
+                </div>
+            </div>
+
+            <div class="stat-card" data-section="employees" onclick="showSection('employees')">
+                <div class="stat-icon green">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">Employés</div>
+                </div>
+            </div>
+
+            <div class="stat-card" data-section="reservations" onclick="showSection('reservations')">
+                <div class="stat-icon purple">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ reservations is defined ? reservations|length : 0 }}</div>
+                    <div class="stat-label">Réservations</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANAGEMENT SECTION -->
+        <div class="management-section">
+            
+            <!-- PRODUCTS SECTION -->
+            <div class="section-content active" id="products-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-box"></i>
+                        Gestion des Produits
+                    </h2>
+                    <a href="{{ path('app_article_menu_new') }}" class="add-button">
+                        <i class="fas fa-plus"></i>
+                        Ajouter un produit
+                    </a>
+                </div>
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h3>Aucun produit</h3>
+                    <p>Commencez par ajouter vos premiers produits pour enrichir votre catalogue</p>
+                    <a href="{{ path('app_article_menu_new') }}" class="add-button">
+                        <i class="fas fa-plus"></i>
+                        Créer mon premier produit
+                    </a>
+                </div>
+            </div>
+
+            <!-- CATEGORIES SECTION -->
+            <div class="section-content" id="categories-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-tags"></i>
+                        Gestion des Catégories
+                    </h2>
+                    <button class="add-button" onclick="openCategoryChoiceModal()">
+                        <i class="fas fa-plus"></i>
+                        Ajouter une catégorie
+                    </button>
+                </div>
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3>Gestion des catégories</h3>
+                    <p>Organisez vos produits et employés par catégories</p>
+                </div>
+            </div>
+
+            <!-- EMPLOYEES SECTION -->
+            <div class="section-content" id="employees-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-users"></i>
+                        Gestion des Employés
+                    </h2>
+                    <button class="add-button">
+                        <i class="fas fa-plus"></i>
+                        Ajouter un employé
+                    </button>
+                </div>
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Gestion des employés</h3>
+                    <p>Gérez votre équipe et leurs informations</p>
+                </div>
+            </div>
+
+            <!-- RESERVATIONS SECTION -->
+            <div class="section-content" id="reservations-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-calendar-check"></i>
+                        Réservations de Tables
+                    </h2>
+                    <button class="add-button">
+                        <i class="fas fa-plus"></i>
+                        Nouvelle réservation
+                    </button>
+                </div>
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-calendar-times"></i>
+                    </div>
+                    <h3>Aucune réservation</h3>
+                    <p>Les réservations de tables apparaîtront ici une fois qu'elles seront effectuées</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+// Test simple pour vérifier que les boutons fonctionnent
+console.log('Dashboard simple loaded');
+</script>
+
+{% endblock %}

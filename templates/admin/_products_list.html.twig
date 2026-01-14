@@ -1,0 +1,204 @@
+{% if articleMenus is defined and articleMenus|length > 0 %}
+    <div class="products-list">
+        {% for article in articleMenus %}
+            <div class="product-item">
+                <div class="product-image">
+                    {% if article.imageUrl %}
+                        <img src="{{ article.imageUrl }}" alt="{{ article.nomArticle }}" loading="lazy" />
+                    {% else %}
+                        <div class="no-image">
+                            <i class="fas fa-image"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="product-info">
+                    <h3>{{ article.nomArticle }}</h3>
+                    <p class="product-category">{{ article.menu ? article.menu.nomMenu : 'Sans catégorie' }}</p>
+                </div>
+                
+                <div class="product-price">
+                    {{ article.prix }} DH
+                </div>
+                
+                <div class="status {{ article.disponible ? 'available' : 'unavailable' }}">
+                    {{ article.disponible ? 'Disponible' : 'Indisponible' }}
+                </div>
+                
+                <div class="product-actions">
+                    <button class="btn-edit" onclick="editProduct({{ article.id }}, '{{ article.nomArticle }}', '{{ article.description }}', {{ article.prix }}, {{ article.menu ? article.menu.id : 0 }}, '{{ article.imageUrl }}', {{ article.disponible ? 'true' : 'false' }}, this)">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-delete" onclick="deleteProduct({{ article.id }}, '{{ article.nomArticle }}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <i class="fas fa-utensils"></i>
+        <h3>Aucun produit</h3>
+        <p>Commencez par ajouter votre premier produit au menu.</p>
+        <button onclick="openNewProductModal()" class="btn-primary">
+            <i class="fas fa-plus"></i>
+            Ajouter un produit
+        </button>
+    </div>
+{% endif %}
+
+<style>
+/* Products List */
+.products-list {
+    display: grid;
+    gap: 16px;
+}
+
+.product-item {
+    display: grid;
+    grid-template-columns: 60px 2fr 120px 100px 120px;
+    gap: 20px;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.product-item:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.product-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f3f4f6;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+}
+
+.product-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 4px 0;
+}
+
+.product-category {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.product-price {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f97316;
+}
+
+.status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.status.available {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status.unavailable {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.product-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-edit, .btn-delete {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-edit {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.btn-edit:hover {
+    background: #bfdbfe;
+}
+
+.btn-delete {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.btn-delete:hover {
+    background: #fecaca;
+}
+
+.btn-primary {
+    background: #f97316;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .product-item {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        text-align: center;
+    }
+}
+</style>
+
+<script>
+function editProduct(id, nom, description, prix, menuId, imageUrl, disponible, buttonElement) {
+    console.log('Édition produit:', { id, nom, prix });
+    alert('Modal édition produit - Fonctionnalité à implémenter');
+}
+
+function deleteProduct(id, name) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer le produit "${name}" ?`)) {
+        console.log('Suppression produit:', id);
+        alert('Suppression produit - Fonctionnalité à implémenter');
+    }
+}
+</script>

@@ -1,18 +1,1200 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Gestion Restaurant{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🍽️</text></svg>">
+        
+        {# Google Fonts - Inter & Playfair Display #}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+        
+        {# Font Awesome Icons #}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
         {% block stylesheets %}
-            {{ asset('styles/app.css') }}
+            <link rel="stylesheet" href="/styles/app.css">
         {% endblock %}
 
-        {% block javascripts %}
+        {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
+            <script src="{{ asset('scroll-animations.js') }}"></script>
+            <script src="{{ asset('js/faq.js') }}"></script>
         {% endblock %}
     </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
-</html>
+
+    <body class="override-all" data-controller="image-fallback scroll-animation">
+        <nav class="modern-navbar">
+            <div class="nav-container">
+                <div class="nav-content">
+                    <!-- Dashboard séparé tout à gauche (admin seulement) -->
+                    {% if app.user and is_granted('ROLE_ADMIN') %}
+                        <div class="nav-admin">
+                            <a href="{{ path('app_dashboard') }}" class="nav-link admin-link">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Navigation groupée autour du logo -->
+                    <div class="nav-left">
+                        <a href="{{ path('app_home') }}" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            <span>Accueil</span>
+                        </a>
+                        <a href="{{ path('app_about') }}" class="nav-link">
+                            <i class="fas fa-info-circle"></i>
+                            <span>À propos</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Logo central -->
+                    <div class="nav-brand">
+                        <i class="fas fa-utensils"></i>
+                        <span>CABESTAN</span>
+                    </div>
+                    
+                    <div class="nav-right">
+                        <a href="{{ path('app_restaurant_menu') }}" class="nav-link">
+                            <i class="fas fa-book-open"></i>
+                            <span>Notre Carte</span>
+                        </a>
+                        <a href="{{ path('app_contact') }}" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            <span>Contact</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Authentification à droite -->
+                    <div class="nav-auth">
+                        {% if app.user %}
+                            <div class="nav-user">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <div class="user-menu">
+                                    <a href="#" class="user-link" onclick="openProfileModal(); return false;">Mon Profil</a>
+                                    <a href="#" class="user-link" onclick="openMyReservationsModal(); return false;">Mes Réservations</a>
+                                    <a href="{{ path('app_logout') }}" class="user-link logout">Déconnexion</a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <a href="#" class="nav-link login-btn" onclick="openLoginModal(); return false;">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Connexion</span>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    
+        <!-- Messages Flash (en dehors de la modale) -->
+        <div class="flash-messages-container">
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-times-circle"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    
+        <main class="main-content">
+            {% block body %}{% endblock %}
+        </main>
+
+        <!-- Modal de Connexion -->
+        <div id="loginModal" class="auth-modal">
+            <div class="auth-modal-overlay" onclick="closeLoginModal()"></div>
+            <div class="auth-modal-content">
+                <button class="auth-modal-close" onclick="closeLoginModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <div id="loginForm" class="auth-form-container active">
+                    <div class="auth-header">
+                        <i class="fas fa-utensils"></i>
+                        <h2>Connexion</h2>
+                        <p>Connectez-vous pour réserver une table</p>
+                    </div>
+
+                    <form method="post" action="{{ path('app_login') }}">
+                        <div class="form-group">
+                            <label for="modalInputLogin">
+                                <i class="fas fa-user"></i> Email ou Login
+                            </label>
+                            <input 
+                                type="text" 
+                                name="login" 
+                                id="modalInputLogin" 
+                                class="form-control" 
+                                required 
+                                placeholder="Votre email ou login"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modalInputPassword">
+                                <i class="fas fa-lock"></i> Mot de passe
+                            </label>
+                            <div class="password-wrapper">
+                                <input 
+                                    type="password" 
+                                    name="password" 
+                                    id="modalInputPassword" 
+                                    class="form-control" 
+                                    required
+                                    placeholder="Votre mot de passe"
+                                >
+                                <button type="button" class="password-toggle" onclick="togglePassword('modalInputPassword', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        <button class="btn-submit" type="submit">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </button>
+                    </form>
+
+                    <div class="auth-footer">
+                        <p>Vous n'avez pas de compte ?</p>
+                        <button onclick="switchToRegister()" class="btn-switch">
+                            <i class="fas fa-user-plus"></i> Créer un compte
+                        </button>
+                    </div>
+                </div>
+
+                <div id="registerForm" class="auth-form-container">
+                    <div class="auth-header">
+                        <i class="fas fa-user-plus"></i>
+                        <h2>Créer un compte</h2>
+                        <p>Inscrivez-vous pour réserver une table</p>
+                    </div>
+
+                    <form method="post" action="{{ path('app_register') }}">
+                        <div class="form-group">
+                            <label for="modalInputEmail">
+                                <i class="fas fa-envelope"></i> Email <span class="required">*</span>
+                            </label>
+                            <input 
+                                type="email" 
+                                name="email" 
+                                id="modalInputEmail" 
+                                class="form-control" 
+                                required
+                                placeholder="votre@email.com"
+                            >
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="modalInputNom">
+                                    <i class="fas fa-user"></i> Nom <span class="required">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="nom" 
+                                    id="modalInputNom" 
+                                    class="form-control" 
+                                    required
+                                    placeholder="Votre nom"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="modalInputPrenom">
+                                    <i class="fas fa-user"></i> Prénom
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="prenom" 
+                                    id="modalInputPrenom" 
+                                    class="form-control"
+                                    placeholder="Votre prénom"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modalInputTelephone">
+                                <i class="fas fa-phone"></i> Téléphone
+                            </label>
+                            <input 
+                                type="tel" 
+                                name="telephone" 
+                                id="modalInputTelephone" 
+                                class="form-control"
+                                placeholder="06 12 34 56 78"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modalInputPasswordReg">
+                                <i class="fas fa-lock"></i> Mot de passe <span class="required">*</span>
+                            </label>
+                            <div class="password-wrapper">
+                                <input 
+                                    type="password" 
+                                    name="password" 
+                                    id="modalInputPasswordReg" 
+                                    class="form-control" 
+                                    required
+                                    placeholder="Minimum 6 caractères"
+                                    minlength="6"
+                                >
+                                <button type="button" class="password-toggle" onclick="togglePassword('modalInputPasswordReg', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modalInputConfirmPassword">
+                                <i class="fas fa-lock"></i> Confirmer <span class="required">*</span>
+                            </label>
+                            <div class="password-wrapper">
+                                <input 
+                                    type="password" 
+                                    name="confirm_password" 
+                                    id="modalInputConfirmPassword" 
+                                    class="form-control" 
+                                    required
+                                    placeholder="Retapez votre mot de passe"
+                                    minlength="6"
+                                >
+                                <button type="button" class="password-toggle" onclick="togglePassword('modalInputConfirmPassword', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button class="btn-submit" type="submit">
+                            <i class="fas fa-user-plus"></i> Créer mon compte
+                        </button>
+                    </form>
+
+                    <div class="auth-footer">
+                        <p>Vous avez déjà un compte ?</p>
+                        <button onclick="switchToLogin()" class="btn-switch">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Mon Profil -->
+        <div id="profileModal" class="auth-modal">
+            <div class="auth-modal-overlay" onclick="closeProfileModal()"></div>
+            <div class="auth-modal-content">
+                <button class="auth-modal-close" onclick="closeProfileModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <div class="auth-form-container active">
+                    <div class="auth-header">
+                        <i class="fas fa-user-circle"></i>
+                        <h2>Mon Profil</h2>
+                        <p>Informations de votre compte</p>
+                    </div>
+
+                    {% if app.user %}
+                        <div class="profile-info">
+                            <div class="profile-item">
+                                <label><i class="fas fa-user"></i> Nom</label>
+                                <p>{{ app.user.nom ?? 'Non renseigné' }}</p>
+                            </div>
+                            <div class="profile-item">
+                                <label><i class="fas fa-user"></i> Prénom</label>
+                                <p>{{ app.user.prenom ?? 'Non renseigné' }}</p>
+                            </div>
+                            <div class="profile-item">
+                                <label><i class="fas fa-envelope"></i> Email</label>
+                                <p>{{ app.user.email ?? app.user.login ?? 'Non renseigné' }}</p>
+                            </div>
+                            <div class="profile-item">
+                                <label><i class="fas fa-phone"></i> Téléphone</label>
+                                <p>{{ app.user.telephone ?? 'Non renseigné' }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Mes Réservations -->
+        <div id="myReservationsModal" class="auth-modal">
+            <div class="auth-modal-overlay" onclick="closeMyReservationsModal()"></div>
+            <div class="auth-modal-content" style="max-width: 800px;">
+                <button class="auth-modal-close" onclick="closeMyReservationsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <div class="auth-form-container active">
+                    <div class="auth-header">
+                        <i class="fas fa-calendar-check"></i>
+                        <h2>Mes Réservations</h2>
+                        <p>Historique de vos réservations</p>
+                    </div>
+
+                    <div class="my-reservations-list">
+                        <p style="text-align: center; color: #6b7280; padding: 2rem;">
+                            <i class="fas fa-calendar-times" style="font-size: 3rem; display: block; margin-bottom: 1rem; color: #d1d5db;"></i>
+                            Aucune réservation pour le moment
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Modifier Réservation -->
+        <div id="editReservationModal" class="auth-modal">
+            <div class="auth-modal-overlay" onclick="closeEditReservationModal()"></div>
+            <div class="auth-modal-content">
+                <button class="auth-modal-close" onclick="closeEditReservationModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <div class="auth-form-container active">
+                    <div class="auth-header">
+                        <i class="fas fa-edit"></i>
+                        <h2>Modifier ma réservation</h2>
+                        <p>Modifiez les détails de votre réservation</p>
+                    </div>
+
+                    <form method="post" action="{{ path('app_update_my_reservation') }}" id="editReservationForm">
+                        <input type="hidden" name="reservation_id" id="editReservationId">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="editDate">
+                                    <i class="fas fa-calendar"></i> Date <span class="required">*</span>
+                                </label>
+                                <input type="date" name="date" id="editDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editTime">
+                                    <i class="fas fa-clock"></i> Heure <span class="required">*</span>
+                                </label>
+                                <input type="time" name="time" id="editTime" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="editPersons">
+                                    <i class="fas fa-users"></i> Nombre de personnes <span class="required">*</span>
+                                </label>
+                                <select name="persons" id="editPersons" class="form-control" required>
+                                    <option value="1">1 personne</option>
+                                    <option value="2">2 personnes</option>
+                                    <option value="3">3 personnes</option>
+                                    <option value="4">4 personnes</option>
+                                    <option value="5">5 personnes</option>
+                                    <option value="6">6 personnes</option>
+                                    <option value="7">7 personnes</option>
+                                    <option value="8">8 personnes</option>
+                                    <option value="9">9 personnes</option>
+                                    <option value="10">10 personnes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="editPhone">
+                                    <i class="fas fa-phone"></i> Téléphone <span class="required">*</span>
+                                </label>
+                                <input type="tel" name="phone" id="editPhone" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editNotes">
+                                <i class="fas fa-sticky-note"></i> Notes (optionnel)
+                            </label>
+                            <textarea name="notes" id="editNotes" class="form-control" rows="3" placeholder="Demandes spéciales, allergies..."></textarea>
+                        </div>
+
+                        <button type="submit" class="auth-btn primary">
+                            <i class="fas fa-save"></i> Sauvegarder les modifications
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function togglePassword(inputId, button) {
+                const input = document.getElementById(inputId);
+                const icon = button.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+
+            function openLoginModal() {
+                console.log('openLoginModal called');
+                const modal = document.getElementById('loginModal');
+                console.log('Modal element:', modal);
+                
+                if (!modal) {
+                    console.error('Modal loginModal not found!');
+                    return;
+                }
+                
+                modal.classList.add('active');
+                
+                // Animation d'entrée
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+            }
+
+            function closeLoginModal() {
+                const modal = document.getElementById('loginModal');
+                modal.classList.remove('show');
+                
+                // Attendre la fin de l'animation avant de cacher
+                setTimeout(() => {
+                    modal.classList.remove('active');
+                }, 300);
+            }
+
+            function switchToRegister() {
+                const loginForm = document.getElementById('loginForm');
+                const registerForm = document.getElementById('registerForm');
+                
+                loginForm.style.animation = 'slideOutLeft 0.3s ease';
+                setTimeout(() => {
+                    loginForm.classList.remove('active');
+                    loginForm.style.animation = '';
+                    registerForm.classList.add('active');
+                    registerForm.style.animation = 'slideInRight 0.3s ease';
+                }, 300);
+            }
+
+            function switchToLogin() {
+                const loginForm = document.getElementById('loginForm');
+                const registerForm = document.getElementById('registerForm');
+                
+                registerForm.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => {
+                    registerForm.classList.remove('active');
+                    registerForm.style.animation = '';
+                    loginForm.classList.add('active');
+                    loginForm.style.animation = 'slideInLeft 0.3s ease';
+                }, 300);
+            }
+
+            // Fermer avec Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeLoginModal();
+                    closeProfileModal();
+                    closeMyReservationsModal();
+                    closeEditReservationModal();
+                }
+            });
+
+            // Fonctions pour la modale Mon Profil
+            function openProfileModal() {
+                const modal = document.getElementById('profileModal');
+                modal.classList.add('active');
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+            }
+
+            function closeProfileModal() {
+                const modal = document.getElementById('profileModal');
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.classList.remove('active');
+                }, 300);
+            }
+
+            // Fonctions pour la modale Mes Réservations
+            function openMyReservationsModal() {
+                const modal = document.getElementById('myReservationsModal');
+                modal.classList.add('active');
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+                
+                // Charger les réservations
+                loadMyReservations();
+            }
+
+            function closeMyReservationsModal() {
+                const modal = document.getElementById('myReservationsModal');
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.classList.remove('active');
+                }, 300);
+            }
+
+            // Fonctions pour la modale Modifier Réservation
+            function openEditReservationModal() {
+                const modal = document.getElementById('editReservationModal');
+                modal.classList.add('active');
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+            }
+
+            function closeEditReservationModal() {
+                const modal = document.getElementById('editReservationModal');
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.classList.remove('active');
+                }, 300);
+            }
+
+            function loadMyReservations() {
+                const container = document.querySelector('.my-reservations-list');
+                container.innerHTML = '<p style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Chargement...</p>';
+                
+                fetch('/my-reservations')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            container.innerHTML = `
+                                <p style="text-align: center; color: #ef4444; padding: 2rem;">
+                                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; display: block; margin-bottom: 1rem;"></i>
+                                    Erreur: ${data.error}
+                                </p>
+                            `;
+                            return;
+                        }
+                        
+                        if (!data.reservations || data.reservations.length === 0) {
+                            container.innerHTML = `
+                                <p style="text-align: center; color: #6b7280; padding: 2rem;">
+                                    <i class="fas fa-calendar-times" style="font-size: 3rem; display: block; margin-bottom: 1rem; color: #d1d5db;"></i>
+                                    Aucune réservation trouvée
+                                </p>
+                            `;
+                            return;
+                        }
+                        
+                        let html = '';
+                        data.reservations.forEach(reservation => {
+                            html += `
+                                <div class="reservation-card" style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border: 1px solid #e5e7eb;">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                        <div>
+                                            <h4 style="margin: 0 0 0.5rem 0; color: #1f2937; font-size: 1.1rem;">
+                                                <i class="fas fa-calendar-alt" style="color: #10b981; margin-right: 0.5rem;"></i>
+                                                ${reservation.date} à ${reservation.time}
+                                            </h4>
+                                            <p style="margin: 0; color: #6b7280;">
+                                                <i class="fas fa-users" style="margin-right: 0.5rem;"></i>
+                                                ${reservation.persons} personne${reservation.persons > 1 ? 's' : ''}
+                                            </p>
+                                            ${reservation.table ? `<p style="margin: 0.25rem 0 0 0; color: #6b7280;"><i class="fas fa-chair" style="margin-right: 0.5rem;"></i>Table ${reservation.table}</p>` : ''}
+                                            ${reservation.notes ? `<p style="margin: 0.5rem 0 0 0; color: #6b7280; font-style: italic;"><i class="fas fa-sticky-note" style="margin-right: 0.5rem;"></i>${reservation.notes}</p>` : ''}
+                                        </div>
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <button onclick="editMyReservation(${reservation.id}, '${reservation.date}', '${reservation.time}', ${reservation.persons}, '${reservation.phone}', '${reservation.notes || ''}')" 
+                                                    style="background: #3b82f6; color: white; border: none; padding: 0.5rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button onclick="deleteMyReservation(${reservation.id}, '${reservation.date} à ${reservation.time}')" 
+                                                    style="background: #ef4444; color: white; border: none; padding: 0.5rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        container.innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors du chargement des réservations:', error);
+                        container.innerHTML = `
+                            <p style="text-align: center; color: #ef4444; padding: 2rem;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; display: block; margin-bottom: 1rem;"></i>
+                                Erreur lors du chargement des réservations
+                            </p>
+                        `;
+                    });
+            }
+
+            // Fonctions pour gérer les réservations utilisateur
+            function editMyReservation(id, date, time, persons, phone, notes) {
+                // Convertir la date du format DD/MM/YYYY vers YYYY-MM-DD
+                const dateParts = date.split('/');
+                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+                
+                // Remplir le formulaire de modification
+                document.getElementById('editReservationId').value = id;
+                document.getElementById('editDate').value = formattedDate;
+                document.getElementById('editTime').value = time;
+                document.getElementById('editPersons').value = persons;
+                document.getElementById('editPhone').value = phone;
+                document.getElementById('editNotes').value = notes || '';
+                
+                // Fermer la modale des réservations et ouvrir celle de modification
+                closeMyReservationsModal();
+                openEditReservationModal();
+            }
+
+            function deleteMyReservation(id, description) {
+                if (confirm(`Êtes-vous sûr de vouloir supprimer la réservation du ${description} ?`)) {
+                    const formData = new FormData();
+                    formData.append('reservation_id', id);
+                    
+                    fetch('/delete-my-reservation', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Recharger la liste des réservations
+                            loadMyReservations();
+                            
+                            // Afficher un message de succès
+                            showFlashMessage('Réservation supprimée avec succès', 'success');
+                        } else {
+                            showFlashMessage('Erreur: ' + (data.error || 'Impossible de supprimer la réservation'), 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        showFlashMessage('Erreur lors de la suppression', 'error');
+                    });
+                }
+            }
+            
+            function showFlashMessage(message, type) {
+                const container = document.querySelector('.flash-messages-container') || document.body;
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
+                alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10001; max-width: 400px;';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                    ${message}
+                `;
+                
+                container.appendChild(alertDiv);
+                
+                // Faire disparaître après 5 secondes
+                setTimeout(() => {
+                    alertDiv.style.animation = 'slideOutRight 0.3s ease-out';
+                    setTimeout(() => {
+                        alertDiv.remove();
+                    }, 300);
+                }, 5000);
+            }
+
+            // Ouvrir automatiquement si paramètre openLogin
+            document.addEventListener('DOMContentLoaded', function() {
+                const urlParams = new URLSearchParams(window.location.search);
+                
+                if (urlParams.get('openLogin') === '1') {
+                    openLoginModal();
+                }
+
+                // Faire disparaître les messages flash après 5 secondes
+                const flashMessages = document.querySelectorAll('.flash-messages-container .alert');
+                flashMessages.forEach(function(message) {
+                    setTimeout(function() {
+                        message.style.animation = 'slideOutRight 0.3s ease-out';
+                        setTimeout(function() {
+                            message.remove();
+                        }, 300);
+                    }, 5000);
+                });
+            });
+        </script>
+
+        <style>
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+
+            .auth-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 10000;
+                pointer-events: none;
+            }
+
+            .auth-modal.active {
+                display: block;
+            }
+
+            .auth-modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0);
+                transition: background 0.3s ease;
+                pointer-events: auto;
+            }
+
+            .auth-modal.show .auth-modal-overlay {
+                background: rgba(0, 0, 0, 0.5);
+            }
+
+            .auth-modal-content {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0.7);
+                background: white !important;
+                border-radius: 16px !important;
+                padding: 40px 50px !important;
+                max-width: 600px;
+                width: 90%;
+                max-height: 85vh;
+                overflow-y: auto;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+                opacity: 0;
+                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                pointer-events: auto;
+                z-index: 10001;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .auth-modal.show .auth-modal-content {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            /* Scrollbar personnalisée pour la modale */
+            .auth-modal-content::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .auth-modal-content::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 10px;
+            }
+
+            .auth-modal-content::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+
+            .auth-modal-content::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+
+            @keyframes slideInRight {
+                from {
+                    opacity: 0;
+                    transform: translateX(50px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            @keyframes slideOutRight {
+                from {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateX(50px);
+                }
+            }
+
+            @keyframes slideInLeft {
+                from {
+                    opacity: 0;
+                    transform: translateX(-50px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            @keyframes slideOutLeft {
+                from {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateX(-50px);
+                }
+            }
+
+            .auth-modal-close {
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                background: #f1f5f9;
+                border: none;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                font-size: 1.2rem;
+                color: #64748b;
+                z-index: 10;
+            }
+
+            .auth-modal-close:hover {
+                background: #e2e8f0;
+                color: #1e293b;
+                transform: rotate(90deg);
+            }
+
+            .auth-form-container {
+                display: none;
+                max-width: 480px;
+                width: 100%;
+            }
+
+            .auth-form-container.active {
+                display: block;
+            }
+
+            .auth-header {
+                text-align: center;
+                margin-bottom: 1.75rem;
+            }
+
+            .auth-header i {
+                font-size: 2.25rem;
+                color: #667eea;
+                margin-bottom: 0.5rem;
+            }
+
+            .auth-header h2 {
+                font-family: 'Playfair Display', serif;
+                font-size: 1.5rem;
+                color: #1e293b;
+                margin-bottom: 0.35rem;
+                font-weight: 600;
+            }
+
+            .auth-header p {
+                color: #94a3b8;
+                font-size: 0.85rem;
+            }
+
+            /* Messages Flash en dehors de la modale */
+            .flash-messages-container {
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                z-index: 9999;
+                max-width: 400px;
+            }
+
+            .flash-messages-container .alert {
+                padding: 1rem 1.5rem;
+                border-radius: 0.75rem;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                animation: slideInRight 0.3s ease-out;
+            }
+
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            .flash-messages-container .alert i {
+                font-size: 1.25rem;
+            }
+
+            .flash-messages-container .alert-success {
+                background: #f0fdf4;
+                border: 2px solid #22c55e;
+                color: #15803d;
+            }
+
+            .flash-messages-container .alert-danger {
+                background: #fef2f2;
+                border: 2px solid #ef4444;
+                color: #b91c1c;
+            }
+
+            .auth-modal .alert {
+                padding: 1rem;
+                border-radius: 0.75rem;
+                margin-bottom: 2rem;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .auth-modal .alert i {
+                font-size: 1.25rem;
+            }
+
+            .auth-modal .alert-success {
+                background: #f0fdf4;
+                border: 2px solid #22c55e;
+                color: #15803d;
+            }
+
+            .auth-modal .alert-danger {
+                background: #fef2f2;
+                border: 2px solid #ef4444;
+                color: #b91c1c;
+            }
+
+            .auth-modal .form-group {
+                margin-bottom: 2rem;
+            }
+
+            .auth-modal .form-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.25rem;
+            }
+
+            .auth-modal label {
+                display: block;
+                font-weight: 600;
+                color: #475569;
+                margin-bottom: 0.65rem;
+                font-size: 0.95rem;
+            }
+
+            .auth-modal label i {
+                color: #667eea;
+                margin-right: 0.65rem;
+            }
+
+            .required {
+                color: #ef4444;
+            }
+
+            .auth-modal .form-control {
+                width: 100%;
+                padding: 1.15rem 1.5rem;
+                border: 2px solid #e2e8f0;
+                border-radius: 0.75rem;
+                font-size: 1rem;
+                line-height: 1.5;
+                transition: all 0.3s ease;
+                box-sizing: border-box;
+            }
+
+            .auth-modal .form-control:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+
+            /* Désactiver le bouton natif du navigateur pour les mots de passe */
+            .auth-modal input[type="password"]::-ms-reveal,
+            .auth-modal input[type="password"]::-ms-clear {
+                display: none;
+            }
+
+            .auth-modal input[type="password"]::-webkit-credentials-auto-fill-button,
+            .auth-modal input[type="password"]::-webkit-contacts-auto-fill-button {
+                visibility: hidden;
+                display: none !important;
+                pointer-events: none;
+                height: 0;
+                width: 0;
+                margin: 0;
+            }
+
+            .password-wrapper {
+                position: relative;
+            }
+
+            .password-wrapper .form-control {
+                padding-right: 3.5rem;
+            }
+
+            .password-toggle {
+                position: absolute;
+                right: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                color: #94a3b8;
+                cursor: pointer;
+                padding: 0.5rem;
+                font-size: 1rem;
+                transition: color 0.2s ease;
+            }
+
+            .password-toggle:hover {
+                color: #667eea;
+            }
+
+            .btn-submit {
+                width: 66.67%;
+                padding: 12.5px 1rem !important;
+                min-height: 40px !important;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                border-radius: 0.75rem;
+                font-size: 1.15rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.75rem;
+                margin: 2.5rem auto 0 auto !important;
+            }
+
+            .btn-submit:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            }
+
+            .auth-footer {
+                margin-top: 2.5rem;
+                padding-top: 2.5rem;
+                border-top: 2px solid #e2e8f0;
+                text-align: center;
+            }
+
+            .auth-footer p {
+                color: #64748b;
+                margin-bottom: 1.25rem;
+                font-size: 0.95rem;
+            }
+
+            .btn-switch {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.65rem;
+                padding: 1.2rem 2.35rem;
+                background: #f8fafc;
+                color: #667eea;
+                border: 2px solid #667eea;
+                border-radius: 0.75rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-size: 1.05rem;
+            }
+
+            .btn-switch:hover {
+                background: #667eea;
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            }
+
+            @media (max-width: 768px) {
+                .auth-modal-content {
+                    padding: 3rem 2.5rem;
+                }
+                
+                .auth-header h2 {
+                    font-size: 1.5rem;
+                }
+
+                .auth-modal .form-row {
+                    grid-template-columns: 1fr;
+                }
+
+                .auth-modal .form-group {
+                    margin-bottom: 1.75rem;
+                }
+            }
+
+            /* Styles pour Mon Profil */
+            .profile-info {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .profile-item {
+                background: #f8fafc;
+                padding: 1.25rem 1.5rem;
+                border-radius: 0.75rem;
+                border: 1px solid #e2e8f0;
+            }
+
+            .profile-item label {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 600;
+                color: #475569;
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .profile-item label i {
+                color: #667eea;
+            }
+
+            .profile-item p {
+                color: #1e293b;
+                font-size: 1rem;
+                margin: 0;
+                font-weight: 500;
+            }
+
+            /* Styles pour Mes Réservations */
+            .my-reservations-list {
+                max-height: 500px;
+                overflow-y: auto;
+            }
+        </style>
+    </body></html>

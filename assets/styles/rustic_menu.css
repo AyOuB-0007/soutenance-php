@@ -1,0 +1,52 @@
+/* Rustic Menu Styles */
+
+body {
+    background-color: #f5f5dc; /* Beige/Cream */
+    font-family: 'Georgia', serif; /* Classic serif font */
+    color: #4a4a4a; /* Dark grey text */
+}
+
+h1, h2 {
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif; /* Another classic serif */
+    color: #6d4c41; /* Dark brown */
+    border-bottom: 2px solid #a1887f; /* Muted brown border */
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #fff8dc; /* Cornsilk */
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2); /* Subtle shadow */
+}
+
+table th, table td {
+    border: 1px solid #d7ccc8; /* Light brown border */
+    padding: 10px;
+    text-align: left;
+}
+
+table th {
+    background-color: #a1887f; /* Muted brown for headers */
+    color: white;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f2ede9; /* Slightly different background for even rows */
+}
+
+p {
+    line-height: 1.6;
+}
+
+a {
+    color: #795548; /* Brown link color */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}

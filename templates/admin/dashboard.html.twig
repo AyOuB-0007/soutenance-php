@@ -1,0 +1,3553 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/dashboard-simple.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<style>
+/* RESET AND OVERRIDE ALL EXISTING STYLES */
+.dashboard-container * {
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.dashboard-container {
+    background: #f8fafc !important;
+    min-height: 100vh !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    color: #111827 !important;
+    padding: 40px 20px !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.dashboard-wrapper {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+/* HEADER SECTION */
+.dashboard-header {
+    background: white !important;
+    border-radius: 16px !important;
+    padding: 32px 40px !important;
+    margin-bottom: 32px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: relative !important;
+    z-index: 3 !important;
+    text-align: center !important;
+}
+
+.header-content h1 {
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    margin-bottom: 8px !important;
+}
+
+.header-content p {
+    font-size: 16px !important;
+    color: #6b7280 !important;
+    font-weight: 400 !important;
+}
+
+.header-button {
+    background: #ff8c00 !important;
+    color: white !important;
+    border: none !important;
+    padding: 14px 28px !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3) !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.header-button:hover {
+    background: #e67e00 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(255, 140, 0, 0.4) !important;
+}
+
+/* STATS CARDS */
+.stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 24px !important;
+    margin-bottom: 32px !important;
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+.stat-card {
+    background: white !important;
+    border-radius: 16px !important;
+    padding: 28px 24px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    position: relative !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    user-select: none !important;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+.stat-card.active {
+    border: 2px solid #ff8c00 !important;
+    box-shadow: 0 8px 30px rgba(255, 140, 0, 0.15) !important;
+    transform: translateY(-2px) !important;
+}
+
+.stat-card:active {
+    transform: translateY(-1px) !important;
+}
+
+.stat-icon {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px !important;
+    flex-shrink: 0 !important;
+}
+
+.stat-icon.orange {
+    background: #ff8c00 !important;
+    color: white !important;
+}
+
+.stat-icon.blue {
+    background: #3b82f6 !important;
+    color: white !important;
+}
+
+.stat-icon.green {
+    background: #10b981 !important;
+    color: white !important;
+}
+
+.stat-icon.purple {
+    background: #8b5cf6 !important;
+    color: white !important;
+}
+
+.stat-content {
+    flex: 1 !important;
+}
+
+.stat-number {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    line-height: 1 !important;
+    margin-bottom: 4px !important;
+}
+
+.stat-label {
+    font-size: 14px !important;
+    color: #6b7280 !important;
+    font-weight: 500 !important;
+}
+
+/* MANAGEMENT SECTION */
+.management-section {
+    background: white !important;
+    border-radius: 16px !important;
+    padding: 40px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    min-height: 500px !important;
+}
+
+.section-content {
+    display: none !important;
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
+}
+
+.section-content.active {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+.section-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 32px !important;
+    padding-bottom: 16px !important;
+    border-bottom: 2px solid #f3f4f6 !important;
+}
+
+.section-title {
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.section-title i {
+    color: #ff8c00 !important;
+}
+
+.add-button {
+    background: #ff8c00 !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 24px !important;
+    border-radius: 10px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+.add-button:hover {
+    background: #e67e00 !important;
+    transform: translateY(-1px) !important;
+}
+
+/* EMPTY STATE */
+.empty-state {
+    text-align: center !important;
+    padding: 60px 20px !important;
+}
+
+.empty-state-icon {
+    width: 80px !important;
+    height: 80px !important;
+    background: #f3f4f6 !important;
+    border-radius: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto 24px auto !important;
+    font-size: 32px !important;
+    color: #9ca3af !important;
+}
+
+.empty-state h3 {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    margin-bottom: 12px !important;
+}
+
+.empty-state p {
+    font-size: 16px !important;
+    color: #6b7280 !important;
+    margin-bottom: 24px !important;
+    line-height: 1.5 !important;
+}
+
+/* CATEGORIES SECTIONS */
+.categories-sections {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px !important;
+}
+
+.category-section {
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.category-section-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 16px !important;
+    border-bottom: 2px solid #f3f4f6 !important;
+}
+
+.category-section-header h3 {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.category-section-header h3 i {
+    color: #ff8c00 !important;
+}
+
+.category-count {
+    background: #f3f4f6 !important;
+    color: #6b7280 !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+}
+
+/* CATEGORIES GRID */
+.categories-grid {
+    display: grid !important;
+    gap: 16px !important;
+}
+
+.category-card {
+    background: #f8fafc !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    border: 1px solid #e5e7eb !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    transition: all 0.2s ease !important;
+}
+
+.category-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.category-icon {
+    width: 40px !important;
+    height: 40px !important;
+    background: #3b82f6 !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    font-size: 16px !important;
+    flex-shrink: 0 !important;
+}
+
+.employee-icon {
+    background: #10b981 !important;
+}
+
+.category-info {
+    flex: 1 !important;
+}
+
+.category-info h4 {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    margin-bottom: 2px !important;
+}
+
+.category-info p {
+    font-size: 12px !important;
+    color: #6b7280 !important;
+    margin: 0 !important;
+    line-height: 1.3 !important;
+}
+
+.category-actions {
+    display: flex !important;
+    gap: 6px !important;
+}
+
+.category-stats {
+    display: flex !important;
+    align-items: center !important;
+    margin-right: 8px !important;
+}
+
+.employee-count {
+    background: #10b981 !important;
+    color: white !important;
+    padding: 2px 8px !important;
+    border-radius: 12px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+}
+
+/* EMPLOYEE LIST */
+.employee-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)) !important;
+    gap: 20px !important;
+}
+
+.employee-card {
+    background: #f8fafc !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    border: 1px solid #e5e7eb !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    transition: all 0.2s ease !important;
+}
+
+.employee-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.employee-avatar {
+    width: 60px !important;
+    height: 60px !important;
+    background: #ff8c00 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    flex-shrink: 0 !important;
+}
+
+.employee-info {
+    flex: 1 !important;
+}
+
+.employee-name {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    margin-bottom: 4px !important;
+}
+
+.employee-role {
+    font-size: 14px !important;
+    color: #6b7280 !important;
+    margin-bottom: 4px !important;
+}
+
+.employee-contact {
+    font-size: 12px !important;
+    color: #9ca3af !important;
+    margin-bottom: 2px !important;
+}
+
+.employee-phone {
+    font-size: 12px !important;
+    color: #9ca3af !important;
+}
+
+.employee-actions {
+    display: flex !important;
+    gap: 8px !important;
+}
+
+/* ACTION BUTTONS */
+.action-btn {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 6px !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    position: relative !important;
+    z-index: 10 !important;
+    pointer-events: auto !important;
+}
+
+.action-btn.edit {
+    background: #3b82f6 !important;
+    color: white !important;
+}
+
+.action-btn.edit:hover {
+    background: #2563eb !important;
+    transform: scale(1.1) !important;
+}
+
+.action-btn.delete {
+    background: #ef4444 !important;
+    color: white !important;
+}
+
+.action-btn.delete:hover {
+    background: #dc2626 !important;
+    transform: scale(1.1) !important;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .categories-sections {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .employee-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .category-section {
+        padding: 16px !important;
+    }
+}
+
+/* CATEGORY CHOICE MODAL */
+.category-choice-buttons {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 16px !important;
+}
+
+.choice-btn {
+    background: white !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    padding: 20px 16px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.choice-btn:hover {
+    border-color: #ff8c00 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.15) !important;
+}
+
+.choice-btn i {
+    font-size: 32px !important;
+    color: #6b7280 !important;
+    margin-bottom: 8px !important;
+}
+
+.choice-btn:hover i {
+    color: #ff8c00 !important;
+}
+
+.choice-btn span {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+}
+
+.choice-btn small {
+    font-size: 12px !important;
+    color: #9ca3af !important;
+}
+
+.product-choice:hover {
+    border-color: #3b82f6 !important;
+}
+
+.product-choice:hover i {
+    color: #3b82f6 !important;
+}
+
+.employee-choice:hover {
+    border-color: #10b981 !important;
+}
+
+.employee-choice:hover i {
+    color: #10b981 !important;
+}
+
+/* FORM ELEMENTS */
+.form-group textarea {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-family: inherit !important;
+    resize: vertical !important;
+    transition: all 0.2s ease !important;
+}
+
+.form-group textarea:focus {
+    outline: none !important;
+    border-color: #ff8c00 !important;
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1) !important;
+}
+
+/* MODAL SYSTEM */
+.modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    z-index: 1000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 0.3s ease !important;
+    pointer-events: none !important; /* IMPORTANT: Ne pas bloquer les clics quand invisible */
+}
+
+.modal-overlay.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important; /* Permettre les clics seulement quand active */
+}
+
+.modal {
+    background: white !important;
+    border-radius: 16px !important;
+    padding: 32px !important;
+    max-width: 500px !important;
+    width: 90% !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+    transform: scale(0) !important;
+    transform-origin: center !important;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+    position: relative !important;
+}
+
+.modal.active {
+    transform: scale(1) !important;
+}
+
+.modal.closing {
+    transform: scale(0) !important;
+    transition: all 0.3s cubic-bezier(0.55, 0.085, 0.68, 0.53) !important;
+}
+
+.modal-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-bottom: 24px !important;
+}
+
+.modal-header i {
+    font-size: 24px !important;
+    color: #ff8c00 !important;
+}
+
+.modal-header h3 {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+}
+
+.modal-body {
+    margin-bottom: 24px !important;
+}
+
+.form-group {
+    margin-bottom: 16px !important;
+}
+
+.form-group label {
+    display: block !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    margin-bottom: 6px !important;
+}
+
+.form-group input,
+.form-group select {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none !important;
+    border-color: #ff8c00 !important;
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1) !important;
+}
+
+.form-group input.error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.form-group input.error:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.modal-actions {
+    display: flex !important;
+    gap: 12px !important;
+    justify-content: flex-end !important;
+}
+
+.modal-btn {
+    padding: 12px 24px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.modal-btn.cancel {
+    background: #f3f4f6 !important;
+    color: #374151 !important;
+}
+
+.modal-btn.cancel:hover {
+    background: #e5e7eb !important;
+}
+
+.modal-btn.confirm {
+    background: #ff8c00 !important;
+    color: white !important;
+}
+
+.modal-btn.confirm:hover {
+    background: #e67e00 !important;
+}
+
+.modal-btn.danger {
+    background: #ef4444 !important;
+    color: white !important;
+}
+
+.modal-btn.danger:hover {
+    background: #dc2626 !important;
+}
+
+/* RESERVATIONS LIST */
+.reservations-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)) !important;
+    gap: 20px !important;
+}
+
+.reservation-card {
+    background: #f8fafc !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    padding-right: 100px !important;
+    border: 1px solid #e5e7eb !important;
+    transition: all 0.2s ease !important;
+    position: relative !important;
+}
+
+.reservation-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.reservation-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 16px !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.reservation-date,
+.reservation-time {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+}
+
+.reservation-date i {
+    color: #ff8c00 !important;
+}
+
+.reservation-time i {
+    color: #3b82f6 !important;
+}
+
+.client-name {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    margin-bottom: 12px !important;
+}
+
+.client-name i {
+    color: #10b981 !important;
+}
+
+.reservation-details {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+}
+
+.detail-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 13px !important;
+    color: #6b7280 !important;
+}
+
+.detail-item i {
+    width: 14px !important;
+    color: #9ca3af !important;
+}
+
+.reservation-notes {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    font-size: 13px !important;
+    color: #6b7280 !important;
+    background: #f3f4f6 !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    margin-bottom: 12px !important;
+}
+
+.reservation-notes i {
+    color: #fbbf24 !important;
+    margin-top: 2px !important;
+    flex-shrink: 0 !important;
+}
+
+.reservation-actions {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    display: flex !important;
+    gap: 6px !important;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .reservations-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .reservation-details {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+    }
+    
+    .dashboard-header {
+        flex-direction: column !important;
+        gap: 20px !important;
+        text-align: center !important;
+    }
+    
+    .management-section {
+        padding: 24px !important;
+    }
+    
+    .section-header {
+        flex-direction: column !important;
+        gap: 16px !important;
+        align-items: flex-start !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .employee-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-wrapper">
+        
+        <!-- HEADER -->
+        <div class="dashboard-header">
+            <div class="header-content">
+                <h1>Admin Dashboard</h1>
+            </div>
+        </div>
+
+        <!-- STATS CARDS -->
+        <div class="stats-grid">
+            <div class="stat-card active" data-section="products" onclick="showSection('products')">
+                <div class="stat-icon orange">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ products is defined ? products|length : 0 }}</div>
+                    <div class="stat-label">Produits</div>
+                </div>
+            </div>
+
+            <div class="stat-card" data-section="categories" onclick="showSection('categories')">
+                <div class="stat-icon blue">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">
+                        {% set hasCategories = categories is defined and categories is not empty %}
+                        {% set customEmployeeCategoriesCount = customEmployeeCategories is defined ? customEmployeeCategories|length : 0 %}
+                        {% if hasCategories %}
+                            {{ categories|length + 6 + customEmployeeCategoriesCount }}
+                        {% else %}
+                            {{ 12 + customEmployeeCategoriesCount }}
+                        {% endif %}
+                    </div>
+                    <div class="stat-label">Catégories</div>
+                </div>
+            </div>
+
+            <div class="stat-card" data-section="employees" onclick="showSection('employees')">
+                <div class="stat-icon green">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ employees is defined ? employees|length : 0 }}</div>
+                    <div class="stat-label">Employés</div>
+                </div>
+            </div>
+
+            <div class="stat-card" data-section="reservations" onclick="showSection('reservations')">
+                <div class="stat-icon purple">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ reservations is defined ? reservations|length : 0 }}</div>
+                    <div class="stat-label">Réservations</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANAGEMENT SECTION -->
+        <div class="management-section">
+            
+            <!-- PRODUCTS SECTION -->
+            <div class="section-content active" id="products-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-box"></i>
+                        Gestion des Produits
+                    </h2>
+                    <a href="#" class="add-button" onclick="openProductModal('create')">
+                        <i class="fas fa-plus"></i>
+                        Ajouter un produit
+                    </a>
+                </div>
+                
+                {% if products is defined and products|length > 0 %}
+                    {% set productsByCategory = {} %}
+                    {% for product in products %}
+                        {% set categoryName = product.menu ? product.menu.nomMenu : 'Sans catégorie' %}
+                        {% set productsByCategory = productsByCategory|merge({(categoryName): (productsByCategory[categoryName]|default([]))|merge([product])}) %}
+                    {% endfor %}
+                    
+                    {% for categoryName, categoryProducts in productsByCategory %}
+                        <div class="category-section collapsible-category open" style="margin-bottom: 2rem !important;">
+                            <div class="category-section-header" onclick="toggleProductCategory(this)" style="cursor: pointer !important; user-select: none !important;">
+                                <h3>
+                                    <i class="fas fa-chevron-down category-toggle-icon" style="transition: transform 0.3s ease !important; margin-right: 0.5rem !important;"></i>
+                                    <i class="fas fa-utensils"></i> {{ categoryName }}
+                                </h3>
+                                <span class="category-count">{{ categoryProducts|length }} produit{{ categoryProducts|length > 1 ? 's' : '' }}</span>
+                            </div>
+                            
+                            <div class="category-products-wrapper">
+                                <div class="category-products-list">
+                                    <div class="employee-grid">
+                                        {% for product in categoryProducts %}
+                                            <div class="employee-card">
+                                                {% if product.imageUrl %}
+                                                    <img src="{{ product.imageUrl }}" alt="{{ product.nomArticle }}" class="product-image" style="width: 60px !important; height: 60px !important; border-radius: 10px !important; object-fit: cover !important; flex-shrink: 0 !important;" onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('afterbegin', '<div class=\'employee-avatar\' style=\'background: #3b82f6 !important;\'><i class=\'fas fa-utensils\'></i></div>');">
+                                                {% else %}
+                                                    <div class="employee-avatar" style="background: #3b82f6 !important;">
+                                                        <i class="fas fa-utensils"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <div class="employee-info">
+                                                    <div class="employee-name">{{ product.nomArticle }}</div>
+                                                    <div class="employee-role">{{ product.prix }} DH</div>
+                                                    {% if product.description %}
+                                                        <div class="employee-contact">{{ product.description|slice(0, 60) }}{% if product.description|length > 60 %}...{% endif %}</div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="employee-actions">
+                                                    <button class="action-btn edit" onclick="event.stopPropagation(); editProduct({{ product.id }}, '{{ product.nomArticle|e('js') }}', '{{ product.description|e('js') }}', {{ product.prix }}, {{ product.menu ? product.menu.id : 'null' }}, '{{ product.imageUrl|e('js') }}')">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="action-btn delete" onclick="event.stopPropagation(); deleteProduct({{ product.id }}, '{{ product.nomArticle|e('js') }}')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                        <h3>Aucun produit</h3>
+                        <p>Commencez par ajouter vos premiers produits pour enrichir votre catalogue</p>
+                        <a href="#" class="add-button" onclick="openProductModal('create')">
+                            <i class="fas fa-plus"></i>
+                            Créer mon premier produit
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <style>
+            .category-products-wrapper {
+                display: grid;
+                grid-template-rows: 1fr;
+                transition: grid-template-rows 0.4s ease;
+            }
+            
+            .collapsible-category:not(.open) .category-products-wrapper {
+                grid-template-rows: 0fr;
+            }
+            
+            .category-products-list {
+                overflow: hidden;
+            }
+            
+            .collapsible-category.open .category-toggle-icon {
+                transform: rotate(0deg);
+            }
+            
+            .collapsible-category:not(.open) .category-toggle-icon {
+                transform: rotate(-90deg);
+            }
+            </style>
+            
+            <script>
+            function toggleProductCategory(header) {
+                const category = header.parentElement;
+                category.classList.toggle('open');
+            }
+            </script>
+
+            <!-- CATEGORIES SECTION -->
+            <div class="section-content" id="categories-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-tags"></i>
+                        Gestion des Catégories
+                    </h2>
+                    <a href="#" class="add-button" onclick="openCategoryChoiceModal()">
+                        <i class="fas fa-plus"></i>
+                        Ajouter une catégorie
+                    </a>
+                </div>
+                
+                <!-- DIVISION EN DEUX PARTIES -->
+                <div class="categories-sections">
+                    
+                    <!-- CATEGORIES PRODUITS -->
+                    <div class="category-section">
+                        <div class="category-section-header">
+                            <h3><i class="fas fa-utensils"></i> Catégories de Produits</h3>
+                            <span class="category-count">
+                                {% set hasCategories = categories is defined and categories is not empty %}
+                                {% if hasCategories %}
+                                    {{ categories|length }} catégories
+                                {% else %}
+                                    6 catégories
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="categories-grid">
+                            {% set hasCategories = categories is defined and categories is not empty %}
+                            {% if hasCategories %}
+                                {% for category in categories %}
+                                    <div class="category-card">
+                                        <div class="category-icon">
+                                            <i class="fas fa-utensils"></i>
+                                        </div>
+                                        <div class="category-info">
+                                            <h4>{{ category.nomMenu }}</h4>
+                                            <p>Catégorie de produits</p>
+                                        </div>
+                                        <div class="category-actions">
+                                            <button class="action-btn edit" onclick="editProductCategory('{{ category.id }}', '{{ category.nomMenu }}', 'fas fa-utensils')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="action-btn delete" onclick="deleteProductCategory('{{ category.id }}', '{{ category.nomMenu }}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Catégories par défaut -->
+                                <div class="category-card">
+                                    <div class="category-icon">
+                                        <i class="fas fa-hamburger"></i>
+                                    </div>
+                                    <div class="category-info">
+                                        <h4>Plats Principaux</h4>
+                                        <p>Tajines, couscous, grillades et spécialités marocaines</p>
+                                    </div>
+                                    <div class="category-actions">
+                                        <button class="action-btn edit" style="background: red !important; z-index: 9999 !important; position: relative !important;" onmousedown="alert('Mouse down!')" onmouseup="alert('Mouse up!')" onclick="alert('Click!')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" onclick="deleteProductCategory('1', 'Plats Principaux')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="category-card">
+                                    <div class="category-icon">
+                                        <i class="fas fa-ice-cream"></i>
+                                    </div>
+                                    <div class="category-info">
+                                        <h4>Desserts</h4>
+                                        <p>Pâtisseries orientales, fruits et douceurs traditionnelles</p>
+                                    </div>
+                                    <div class="category-actions">
+                                        <button class="action-btn edit" onclick="editProductCategory('2', 'Desserts', 'fas fa-ice-cream')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" onclick="deleteProductCategory('2', 'Desserts')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="category-card">
+                                    <div class="category-icon">
+                                        <i class="fas fa-coffee"></i>
+                                    </div>
+                                    <div class="category-info">
+                                        <h4>Boissons</h4>
+                                        <p>Thé à la menthe, jus frais, sodas et boissons chaudes</p>
+                                    </div>
+                                    <div class="category-actions">
+                                        <button class="action-btn edit" onclick="editProductCategory('3', 'Boissons', 'fas fa-coffee')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" onclick="deleteProductCategory('3', 'Boissons')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="category-card">
+                                    <div class="category-icon">
+                                        <i class="fas fa-bread-slice"></i>
+                                    </div>
+                                    <div class="category-info">
+                                        <h4>Entrées</h4>
+                                        <p>Salades, soupes et amuse-bouches traditionnels</p>
+                                    </div>
+                                    <div class="category-actions">
+                                        <button class="action-btn edit" onclick="editProductCategory('4', 'Entrées', 'fas fa-bread-slice')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" onclick="deleteProductCategory('4', 'Entrées')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="category-card">
+                                    <div class="category-icon">
+                                        <i class="fas fa-fish"></i>
+                                    </div>
+                                    <div class="category-info">
+                                        <h4>Poissons</h4>
+                                        <p>Poissons frais et fruits de mer</p>
+                                    </div>
+                                    <div class="category-actions">
+                                        <button class="action-btn edit" onclick="editProductCategory('5', 'Poissons', 'fas fa-fish')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" onclick="deleteProductCategory('5', 'Poissons')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="category-card">
+                                    <div class="category-icon">
+                                        <i class="fas fa-apple-alt"></i>
+                                    </div>
+                                    <div class="category-info">
+                                        <h4>Fruits</h4>
+                                        <p>Fruits frais et salades de fruits</p>
+                                    </div>
+                                    <div class="category-actions">
+                                        <button class="action-btn edit" onclick="editProductCategory('6', 'Fruits', 'fas fa-apple-alt')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" onclick="deleteProductCategory('6', 'Fruits')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- CATEGORIES EMPLOYES -->
+                    <div class="category-section">
+                        <div class="category-section-header">
+                            <h3><i class="fas fa-users-cog"></i> Catégories d'Employés</h3>
+                            <span class="category-count">{{ 6 + (customEmployeeCategories|length) }} catégories</span>
+                        </div>
+                        
+                        <div class="categories-grid">
+                            <!-- Catégories par défaut -->
+                            <div class="category-card employee-category">
+                                <div class="category-icon employee-icon">
+                                    <i class="fas fa-utensils"></i>
+                                </div>
+                                <div class="category-info">
+                                    <h4>Cuisine</h4>
+                                    <p>Chefs, commis et personnel de cuisine</p>
+                                </div>
+                                <div class="category-stats">
+                                    <span class="employee-count">2 employés</span>
+                                </div>
+                                <div class="category-actions">
+                                    <button class="action-btn edit" onclick="alert('Bouton employé cliqué!')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete" onclick="deleteEmployeeCategory('1', 'Cuisine')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="category-card employee-category">
+                                <div class="category-icon employee-icon">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <div class="category-info">
+                                    <h4>Service</h4>
+                                    <p>Serveurs, serveuses et responsables de salle</p>
+                                </div>
+                                <div class="category-stats">
+                                    <span class="employee-count">2 employés</span>
+                                </div>
+                                <div class="category-actions">
+                                    <button class="action-btn edit" onclick="editEmployeeCategory('2', 'Service', 'fas fa-bell')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete" onclick="deleteEmployeeCategory('2', 'Service')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="category-card employee-category">
+                                <div class="category-icon employee-icon">
+                                    <i class="fas fa-glass-martini"></i>
+                                </div>
+                                <div class="category-info">
+                                    <h4>Bar</h4>
+                                    <p>Barmen et personnel des boissons</p>
+                                </div>
+                                <div class="category-stats">
+                                    <span class="employee-count">1 employé</span>
+                                </div>
+                                <div class="category-actions">
+                                    <button class="action-btn edit" onclick="editEmployeeCategory('3', 'Bar', 'fas fa-glass-martini')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete" onclick="deleteEmployeeCategory('3', 'Bar')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="category-card employee-category">
+                                <div class="category-icon employee-icon">
+                                    <i class="fas fa-door-open"></i>
+                                </div>
+                                <div class="category-info">
+                                    <h4>Accueil</h4>
+                                    <p>Hôtesses et personnel d'accueil</p>
+                                </div>
+                                <div class="category-stats">
+                                    <span class="employee-count">1 employé</span>
+                                </div>
+                                <div class="category-actions">
+                                    <button class="action-btn edit" onclick="editEmployeeCategory('4', 'Accueil', 'fas fa-door-open')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete" onclick="deleteEmployeeCategory('4', 'Accueil')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="category-card employee-category">
+                                <div class="category-icon employee-icon">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <div class="category-info">
+                                    <h4>Management</h4>
+                                    <p>Directeurs, managers et superviseurs</p>
+                                </div>
+                                <div class="category-stats">
+                                    <span class="employee-count">0 employé</span>
+                                </div>
+                                <div class="category-actions">
+                                    <button class="action-btn edit" onclick="editEmployeeCategory('5', 'Management', 'fas fa-user-tie')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete" onclick="deleteEmployeeCategory('5', 'Management')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="category-card employee-category">
+                                <div class="category-icon employee-icon">
+                                    <i class="fas fa-broom"></i>
+                                </div>
+                                <div class="category-info">
+                                    <h4>Nettoyage</h4>
+                                    <p>Personnel d'entretien et de nettoyage</p>
+                                </div>
+                                <div class="category-stats">
+                                    <span class="employee-count">0 employé</span>
+                                </div>
+                                <div class="category-actions">
+                                    <button class="action-btn edit" onclick="editEmployeeCategory('6', 'Nettoyage', 'fas fa-broom')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete" onclick="deleteEmployeeCategory('6', 'Nettoyage')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Catégories personnalisées -->
+                            {% for customCategory in customEmployeeCategories %}
+                                <div class="category-card employee-category">
+                                    <div class="category-icon employee-icon">
+                                        <i class="{{ customCategory.icon }}"></i>
+                                    </div>
+                                    <div class="category-info">
+                                        <h4>{{ customCategory.nom }}</h4>
+                                        <p>{{ customCategory.description }}</p>
+                                    </div>
+                                    <div class="category-stats">
+                                        <span class="employee-count">{{ customCategory.count }} employé{{ customCategory.count > 1 ? 's' : '' }}</span>
+                                    </div>
+                                    <div class="category-actions">
+                                        <button class="action-btn edit" onclick="editEmployeeCategory('{{ customCategory.id }}', '{{ customCategory.nom }}', '{{ customCategory.icon }}')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" onclick="deleteEmployeeCategory('{{ customCategory.id }}', '{{ customCategory.nom }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- EMPLOYEES SECTION -->
+            <div class="section-content" id="employees-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-users"></i>
+                        Gestion des Employés
+                    </h2>
+                    <a href="#" class="add-button" onclick="openEmployeeModal('create')">
+                        <i class="fas fa-plus"></i>
+                        Ajouter un employé
+                    </a>
+                </div>
+                
+                <div class="employee-grid">
+                    {% if employees|length > 0 %}
+                        {% for employee in employees %}
+                            <div class="employee-card">
+                                <div class="employee-avatar">{{ employee.nom|slice(0, 2)|upper }}</div>
+                                <div class="employee-info">
+                                    <div class="employee-name">{{ employee.nom }}</div>
+                                    <div class="employee-role">{{ employee.poste ?? 'Poste non défini' }}</div>
+                                    {% if employee.email %}
+                                        <div class="employee-contact">{{ employee.email }}</div>
+                                    {% endif %}
+                                    {% if employee.telephone %}
+                                        <div class="employee-phone">{{ employee.telephone }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="employee-actions">
+                                    <button class="action-btn edit" onclick="openEmployeeModal('edit', '{{ employee.id }}', '{{ employee.nom }}', '{{ employee.poste ?? '' }}', '{{ employee.email ?? '' }}', '{{ employee.telephone ?? '' }}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete" onclick="openEmployeeModal('delete', '{{ employee.id }}', '{{ employee.nom }}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3>Aucun employé</h3>
+                            <p>Commencez par ajouter vos premiers employés pour gérer votre équipe</p>
+                            <a href="#" class="add-button" onclick="openEmployeeModal('create')">
+                                <i class="fas fa-plus"></i>
+                                Créer mon premier employé
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- RESERVATIONS SECTION -->
+            <div class="section-content" id="reservations-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-calendar-check"></i>
+                        Gestion des Réservations
+                    </h2>
+                    <a href="#" class="add-button" onclick="openReservationModal('create')">
+                        <i class="fas fa-plus"></i>
+                        Nouvelle réservation
+                    </a>
+                </div>
+                
+                {% if reservations|length > 0 %}
+                    <div class="reservations-grid">
+                        {% for reservation in reservations %}
+                            <div class="reservation-card">
+                                <div class="reservation-header">
+                                    <div class="reservation-date">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>{{ reservation.dateHeure|date('d/m/Y') }}</span>
+                                    </div>
+                                    <div class="reservation-time">
+                                        <i class="fas fa-clock"></i>
+                                        <span>{{ reservation.dateHeure|date('H:i') }}</span>
+                                    </div>
+                                </div>
+                                <div class="reservation-info">
+                                    <div class="client-name">
+                                        <i class="fas fa-user"></i>
+                                        <span>{{ reservation.nomClient }}</span>
+                                    </div>
+                                    <div class="reservation-details">
+                                        <div class="detail-item">
+                                            <i class="fas fa-users"></i>
+                                            <span>{{ reservation.nombrePersonnes }} personne{{ reservation.nombrePersonnes > 1 ? 's' : '' }}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-phone"></i>
+                                            <span>{{ reservation.telephone }}</span>
+                                        </div>
+                                        {% if reservation.laTable %}
+                                            <div class="detail-item">
+                                                <i class="fas fa-chair"></i>
+                                                <span>Table {{ reservation.laTable.numero }}</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    {% if reservation.notes %}
+                                        <div class="reservation-notes">
+                                            <i class="fas fa-sticky-note"></i>
+                                            <span>{{ reservation.notes }}</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="reservation-actions">
+                                    <button class="action-btn edit" onclick="openReservationModal('edit', '{{ reservation.id }}', '{{ reservation.nomClient }}', '{{ reservation.dateHeure|date('Y-m-d') }}', '{{ reservation.dateHeure|date('H:i') }}', '{{ reservation.nombrePersonnes }}', '{{ reservation.telephone }}', '{{ reservation.notes ?? '' }}', '{{ reservation.laTable ? reservation.laTable.id : '' }}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete" onclick="openReservationModal('delete', '{{ reservation.id }}', '{{ reservation.nomClient }}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-calendar-times"></i>
+                        </div>
+                        <h3>Aucune réservation</h3>
+                        <p>Les réservations de tables apparaîtront ici une fois qu'elles seront effectuées</p>
+                        <a href="#" class="add-button" onclick="openReservationModal('create')">
+                            <i class="fas fa-calendar-plus"></i>
+                            Créer une réservation
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- MODALES -->
+<!-- Modal Choix de Catégorie -->
+<div class="modal-overlay" id="categoryChoiceModal">
+    <div class="modal" id="categoryChoiceModalContent">
+        <div class="modal-header">
+            <i class="fas fa-tags"></i>
+            <h3>Choisir le type de catégorie</h3>
+        </div>
+        <div class="modal-body">
+            <p style="color: #6b7280; margin-bottom: 24px;">Quel type de catégorie souhaitez-vous créer ?</p>
+            <div class="category-choice-buttons">
+                <button class="choice-btn product-choice" onclick="openCategoryModal('product')">
+                    <i class="fas fa-utensils"></i>
+                    <span>Catégorie Produit</span>
+                    <small>Plats, boissons, desserts...</small>
+                </button>
+                <button class="choice-btn employee-choice" onclick="openCategoryModal('employee')">
+                    <i class="fas fa-users"></i>
+                    <span>Catégorie Employé</span>
+                    <small>Cuisine, service, bar...</small>
+                </button>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="closeCategoryChoiceModal()">Annuler</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Catégorie Produit -->
+<div class="modal-overlay" id="productCategoryModal">
+    <div class="modal" id="productCategoryModalContent">
+        <div class="modal-header">
+            <i class="fas fa-utensils"></i>
+            <h3>Nouvelle catégorie de produit</h3>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nom de la catégorie</label>
+                <input type="text" id="productCategoryName" placeholder="Ex: Plats principaux">
+            </div>
+            <div class="form-group">
+                <label>Icône</label>
+                <select id="productCategoryIcon">
+                    <option value="fas fa-hamburger">🍔 Hamburger</option>
+                    <option value="fas fa-pizza-slice">🍕 Pizza</option>
+                    <option value="fas fa-ice-cream">🍦 Dessert</option>
+                    <option value="fas fa-coffee">☕ Boisson</option>
+                    <option value="fas fa-bread-slice">🍞 Pain</option>
+                    <option value="fas fa-fish">🐟 Poisson</option>
+                    <option value="fas fa-apple-alt">🍎 Fruit</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="closeProductCategoryModal()">Annuler</button>
+            <button class="modal-btn confirm" onclick="saveProductCategory()">Créer la catégorie</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Catégorie Employé -->
+<div class="modal-overlay" id="employeeCategoryModal">
+    <div class="modal" id="employeeCategoryModalContent">
+        <div class="modal-header">
+            <i class="fas fa-users"></i>
+            <h3>Nouvelle catégorie d'employé</h3>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nom de la catégorie</label>
+                <input type="text" id="employeeCategoryName" placeholder="Ex: Cuisine">
+            </div>
+            <div class="form-group">
+                <label>Icône</label>
+                <select id="employeeCategoryIcon">
+                    <option value="fas fa-utensils">🍴 Cuisine</option>
+                    <option value="fas fa-bell">🔔 Service</option>
+                    <option value="fas fa-glass-martini">🍸 Bar</option>
+                    <option value="fas fa-door-open">🚪 Accueil</option>
+                    <option value="fas fa-user-tie">👔 Management</option>
+                    <option value="fas fa-broom">🧹 Nettoyage</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="closeEmployeeCategoryModal()">Annuler</button>
+            <button class="modal-btn confirm" onclick="saveEmployeeCategory()">Créer la catégorie</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Employé -->
+<div class="modal-overlay" id="employeeModal">
+    <div class="modal" id="employeeModalContent">
+        <div class="modal-header">
+            <i class="fas fa-user-edit" id="modalIcon"></i>
+            <h3 id="modalTitle">Modifier l'employé</h3>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Contenu dynamique -->
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="closeEmployeeModal()">Annuler</button>
+            <button class="modal-btn confirm" id="confirmBtn" onclick="confirmAction()">Confirmer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Produit -->
+<div class="modal-overlay" id="productModal">
+    <div class="modal" id="productModalContent">
+        <div class="modal-header">
+            <i class="fas fa-box" id="productModalIcon"></i>
+            <h3 id="productModalTitle">Ajouter un produit</h3>
+        </div>
+        <div class="modal-body" id="productModalBody">
+            <!-- Contenu dynamique -->
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="closeProductModal()">Annuler</button>
+            <button class="modal-btn confirm" id="productConfirmBtn" onclick="confirmProductAction()">Créer le produit</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Réservation -->
+<div class="modal-overlay" id="reservationModal">
+    <div class="modal" id="reservationModalContent">
+        <div class="modal-header">
+            <i class="fas fa-calendar-plus" id="reservationModalIcon"></i>
+            <h3 id="reservationModalTitle">Nouvelle réservation</h3>
+        </div>
+        <div class="modal-body" id="reservationModalBody">
+            <!-- Contenu dynamique -->
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="closeReservationModal()">Annuler</button>
+            <button class="modal-btn confirm" id="reservationConfirmBtn" onclick="confirmReservationAction()">Créer la réservation</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmation de Suppression -->
+<div class="modal-overlay" id="deleteConfirmModal">
+    <div class="modal" id="deleteConfirmModalContent" style="max-width: 500px;">
+        <div class="modal-header">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Confirmer la suppression</h3>
+        </div>
+        <div class="modal-body" style="padding: 2rem; text-align: center;">
+            <p style="font-size: 1.1rem; color: #374151; margin-bottom: 1rem;" id="deleteConfirmMessage">
+                Êtes-vous sûr de vouloir supprimer cet élément ?
+            </p>
+            <p style="font-size: 0.9rem; color: #6b7280;">
+                Cette action est irréversible.
+            </p>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="closeDeleteConfirmModal()">Annuler</button>
+            <button class="modal-btn confirm" onclick="confirmDelete()">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Script simple sans erreurs de syntaxe
+console.log('Template script loaded');
+
+// Fonction de test simple
+function simpleTest() {
+    alert('Test simple fonctionne !');
+}
+
+// Fonction pour fermer les modales en cliquant sur l'overlay
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal-overlay')) {
+        e.target.classList.remove('active');
+    }
+});
+
+// CONFIRMATION DELETE MODAL
+function openDeleteConfirmModal(type, id, name) {
+    currentDeleteAction = { type, id, name };
+    
+    const modal = document.getElementById('deleteConfirmModal');
+    const modalContent = document.getElementById('deleteConfirmModalContent');
+    const message = document.getElementById('deleteConfirmMessage');
+    
+    message.innerHTML = `Êtes-vous sûr de vouloir supprimer la catégorie <strong>"${name}"</strong> ?<br>Cette action est irréversible.`;
+    
+    modal.classList.add('active');
+    setTimeout(() => {
+        modalContent.classList.add('active');
+    }, 50);
+}
+
+function closeDeleteConfirmModal() {
+    const modal = document.getElementById('deleteConfirmModal');
+    const modalContent = document.getElementById('deleteConfirmModalContent');
+    
+    modalContent.classList.add('closing');
+    modalContent.classList.remove('active');
+    
+    setTimeout(() => {
+        modal.classList.remove('active');
+        modalContent.classList.remove('closing');
+        currentDeleteAction = null;
+    }, 300);
+}
+
+function executeDelete() {
+    if (!currentDeleteAction) return;
+    
+    const { type, id, name } = currentDeleteAction;
+    
+    // Créer un formulaire pour supprimer
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/dashboard';
+    form.style.display = 'none';
+    
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'delete_category';
+    actionInput.value = '1';
+    
+    const idInput = document.createElement('input');
+    idInput.type = 'hidden';
+    idInput.name = 'category_id';
+    idInput.value = id;
+    
+    const typeInput = document.createElement('input');
+    typeInput.type = 'hidden';
+    typeInput.name = 'category_type';
+    typeInput.value = type;
+    
+    form.appendChild(actionInput);
+    form.appendChild(idInput);
+    form.appendChild(typeInput);
+    document.body.appendChild(form);
+    
+    // Fermer la modale
+    closeDeleteConfirmModal();
+    
+    // Soumettre le formulaire
+    form.submit();
+}
+
+let currentAction = '';
+let currentEmployeeId = '';
+let clickedButton = null;
+
+// FONCTION DE CHANGEMENT DE SECTION
+function showSection(sectionName) {
+    console.log('showSection called:', sectionName);
+    
+    // Retirer la classe active de toutes les cartes
+    var cards = document.querySelectorAll('.stat-card');
+    for (var i = 0; i < cards.length; i++) {
+        cards[i].classList.remove('active');
+    }
+    
+    // Retirer la classe active de toutes les sections
+    var sections = document.querySelectorAll('.section-content');
+    for (var i = 0; i < sections.length; i++) {
+        sections[i].classList.remove('active');
+    }
+    
+    // Ajouter la classe active à la carte cliquée
+    var clickedCard = document.querySelector('[data-section="' + sectionName + '"]');
+    if (clickedCard) {
+        clickedCard.classList.add('active');
+        console.log('Card activated:', sectionName);
+    } else {
+        console.error('Card not found:', sectionName);
+    }
+    
+    // Ajouter la classe active à la section correspondante
+    var targetSection = document.getElementById(sectionName + '-section');
+    if (targetSection) {
+        targetSection.classList.add('active');
+        console.log('Section activated:', sectionName + '-section');
+    } else {
+        console.error('Section not found:', sectionName + '-section');
+    }
+}
+
+// FONCTION DE TEST POUR LES BOUTONS MODIFIER
+function testEditButtons() {
+    console.log('Testing edit buttons...');
+    
+    // Test des modales
+    const productModal = document.getElementById('productCategoryModal');
+    const employeeModal = document.getElementById('employeeCategoryModal');
+    
+    console.log('Product modal found:', !!productModal);
+    console.log('Employee modal found:', !!employeeModal);
+    
+    if (productModal) {
+        const productTitle = productModal.querySelector('.modal-header h3');
+        const productConfirm = productModal.querySelector('.modal-btn.confirm');
+        console.log('Product modal title found:', !!productTitle);
+        console.log('Product modal confirm button found:', !!productConfirm);
+    }
+    
+    if (employeeModal) {
+        const employeeTitle = employeeModal.querySelector('.modal-header h3');
+        const employeeConfirm = employeeModal.querySelector('.modal-btn.confirm');
+        console.log('Employee modal title found:', !!employeeTitle);
+        console.log('Employee modal confirm button found:', !!employeeConfirm);
+    }
+    
+    // Test des fonctions
+    console.log('editProductCategory function exists:', typeof editProductCategory === 'function');
+    console.log('editEmployeeCategory function exists:', typeof editEmployeeCategory === 'function');
+}
+
+// FONCTIONS DE TEST SIMPLES - VERSION GLOBALE
+window.testEditProductCategory = function() {
+    console.log('TEST: editProductCategory called');
+    alert('Test editProductCategory - Cette fonction fonctionne !');
+};
+
+window.testEditEmployeeCategory = function() {
+    console.log('TEST: editEmployeeCategory called');
+    alert('Test editEmployeeCategory - Cette fonction fonctionne !');
+};
+
+// Test immédiat
+console.log('Functions defined globally');
+console.log('testEditProductCategory exists:', typeof window.testEditProductCategory === 'function');
+console.log('testEditEmployeeCategory exists:', typeof window.testEditEmployeeCategory === 'function');
+
+// Diagnostic des event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, checking for click blockers...');
+    
+    // Vérifier s'il y a des overlays ou des éléments qui bloquent
+    const overlays = document.querySelectorAll('.modal-overlay');
+    console.log('Found modal overlays:', overlays.length);
+    
+    overlays.forEach((overlay, index) => {
+        console.log(`Overlay ${index}:`, overlay.id, 'active:', overlay.classList.contains('active'));
+    });
+    
+    // Ajouter un listener global pour voir si les clics arrivent
+    document.addEventListener('click', function(e) {
+        console.log('Global click detected on:', e.target);
+        console.log('Target classes:', e.target.className);
+        console.log('Target onclick:', e.target.onclick);
+    }, true); // true = capture phase
+    
+    // Test direct sur les boutons
+    setTimeout(() => {
+        const editButtons = document.querySelectorAll('.action-btn.edit');
+        console.log('Found edit buttons:', editButtons.length);
+        
+        editButtons.forEach((btn, index) => {
+            console.log(`Button ${index}:`, btn.onclick, btn.style.display, btn.style.visibility);
+        });
+    }, 2000);
+});
+
+// Test au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Dashboard loaded, running tests...');
+    setTimeout(testEditButtons, 1000); // Attendre 1 seconde pour que tout soit chargé
+});
+
+// NAVIGATION ENTRE SECTIONS - Version améliorée
+function initializeDashboardNavigation() {
+    console.log('Initializing dashboard navigation');
+    
+    const statCards = document.querySelectorAll('.stat-card');
+    const sections = document.querySelectorAll('.section-content');
+    
+    console.log('Found stat cards:', statCards.length);
+    console.log('Found sections:', sections.length);
+    
+    if (statCards.length === 0) {
+        console.error('No stat cards found!');
+        return;
+    }
+    
+    statCards.forEach((card, index) => {
+        console.log(`Setting up card ${index}:`, card.getAttribute('data-section'));
+        
+        card.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const sectionName = this.getAttribute('data-section');
+            console.log('Clicked section:', sectionName);
+            
+            // Remove active class from all cards and sections
+            statCards.forEach(c => c.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+            
+            // Add active class to clicked card and corresponding section
+            this.classList.add('active');
+            const targetSection = document.getElementById(sectionName + '-section');
+            console.log('Target section:', targetSection);
+            
+            if (targetSection) {
+                targetSection.classList.add('active');
+                console.log('Section activated:', sectionName + '-section');
+            } else {
+                console.error('Section not found:', sectionName + '-section');
+            }
+        });
+    });
+}
+
+// Essayer plusieurs méthodes d'initialisation
+document.addEventListener('DOMContentLoaded', initializeDashboardNavigation);
+
+// Backup au cas où DOMContentLoaded ne fonctionne pas
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeDashboardNavigation);
+} else {
+    initializeDashboardNavigation();
+}
+
+// Backup supplémentaire avec setTimeout
+setTimeout(initializeDashboardNavigation, 100);
+
+// CATEGORY CHOICE MODAL
+function openCategoryChoiceModal() {
+    const modal = document.getElementById('categoryChoiceModal');
+    const modalContent = document.getElementById('categoryChoiceModalContent');
+    
+    modal.classList.add('active');
+    setTimeout(() => {
+        modalContent.classList.add('active');
+    }, 50);
+}
+
+function closeCategoryChoiceModal() {
+    const modal = document.getElementById('categoryChoiceModal');
+    const modalContent = document.getElementById('categoryChoiceModalContent');
+    
+    modalContent.classList.add('closing');
+    modalContent.classList.remove('active');
+    
+    setTimeout(() => {
+        modal.classList.remove('active');
+        modalContent.classList.remove('closing');
+    }, 300);
+}
+
+function openCategoryModal(type) {
+    // Fermer la modale de choix
+    closeCategoryChoiceModal();
+    
+    // Attendre que la première modale se ferme avant d'ouvrir la suivante
+    setTimeout(() => {
+        if (type === 'product') {
+            openProductCategoryModal();
+        } else if (type === 'employee') {
+            openEmployeeCategoryModal();
+        }
+    }, 350);
+}
+
+// PRODUCT CATEGORY MODAL
+function openProductCategoryModal() {
+    const modal = document.getElementById('productCategoryModal');
+    const modalContent = document.getElementById('productCategoryModalContent');
+    
+    modal.classList.add('active');
+    setTimeout(() => {
+        modalContent.classList.add('active');
+    }, 50);
+}
+
+function closeProductCategoryModal() {
+    const modal = document.getElementById('productCategoryModal');
+    const modalContent = document.getElementById('productCategoryModalContent');
+    
+    modalContent.classList.add('closing');
+    modalContent.classList.remove('active');
+    
+    setTimeout(() => {
+        modal.classList.remove('active');
+        modalContent.classList.remove('closing');
+        // Reset form
+        document.getElementById('productCategoryName').value = '';
+        document.getElementById('productCategoryIcon').selectedIndex = 0;
+    }, 300);
+}
+
+function saveProductCategory() {
+    const name = document.getElementById('productCategoryName').value;
+    const icon = document.getElementById('productCategoryIcon').value;
+    
+    if (!name.trim()) {
+        // Afficher un message d'erreur dans la modale au lieu d'une alerte
+        const nameInput = document.getElementById('productCategoryName');
+        nameInput.classList.add('error');
+        nameInput.focus();
+        
+        // Retirer la classe d'erreur quand l'utilisateur tape
+        nameInput.addEventListener('input', function() {
+            this.classList.remove('error');
+        }, { once: true });
+        
+        return;
+    }
+    
+    // Créer un formulaire simple qui poste vers le dashboard
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/dashboard';
+    form.style.display = 'none';
+    
+    const nameInput = document.createElement('input');
+    nameInput.type = 'hidden';
+    nameInput.name = 'nom';
+    nameInput.value = name;
+    
+    const typeInput = document.createElement('input');
+    typeInput.type = 'hidden';
+    typeInput.name = 'type';
+    typeInput.value = 'product';
+    
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'create_category';
+    actionInput.value = '1';
+    
+    form.appendChild(nameInput);
+    form.appendChild(typeInput);
+    form.appendChild(actionInput);
+    document.body.appendChild(form);
+    
+    // Fermer la modale
+    closeProductCategoryModal();
+    
+    // Soumettre le formulaire
+    form.submit();
+}
+
+// EMPLOYEE CATEGORY MODAL
+function openEmployeeCategoryModal() {
+    const modal = document.getElementById('employeeCategoryModal');
+    const modalContent = document.getElementById('employeeCategoryModalContent');
+    
+    modal.classList.add('active');
+    setTimeout(() => {
+        modalContent.classList.add('active');
+    }, 50);
+}
+
+function closeEmployeeCategoryModal() {
+    const modal = document.getElementById('employeeCategoryModal');
+    const modalContent = document.getElementById('employeeCategoryModalContent');
+    
+    modalContent.classList.add('closing');
+    modalContent.classList.remove('active');
+    
+    setTimeout(() => {
+        modal.classList.remove('active');
+        modalContent.classList.remove('closing');
+        // Reset form
+        document.getElementById('employeeCategoryName').value = '';
+        document.getElementById('employeeCategoryIcon').selectedIndex = 0;
+    }, 300);
+}
+
+function saveEmployeeCategory() {
+    const name = document.getElementById('employeeCategoryName').value;
+    const icon = document.getElementById('employeeCategoryIcon').value;
+    
+    if (!name.trim()) {
+        // Afficher un message d'erreur dans la modale au lieu d'une alerte
+        const nameInput = document.getElementById('employeeCategoryName');
+        nameInput.classList.add('error');
+        nameInput.focus();
+        
+        // Retirer la classe d'erreur quand l'utilisateur tape
+        nameInput.addEventListener('input', function() {
+            this.classList.remove('error');
+        }, { once: true });
+        
+        return;
+    }
+    
+    // Créer un formulaire simple qui poste vers le dashboard
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/dashboard';
+    form.style.display = 'none';
+    
+    const nameInput = document.createElement('input');
+    nameInput.type = 'hidden';
+    nameInput.name = 'nom';
+    nameInput.value = name;
+    
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'create_category';
+    actionInput.value = '1';
+    
+    const typeInput = document.createElement('input');
+    typeInput.type = 'hidden';
+    typeInput.name = 'type';
+    typeInput.value = 'employee';
+    
+    form.appendChild(nameInput);
+    form.appendChild(actionInput);
+    form.appendChild(typeInput);
+    document.body.appendChild(form);
+    
+    // Fermer la modale
+    closeEmployeeCategoryModal();
+    
+    // Soumettre le formulaire
+    form.submit();
+}
+
+// EMPLOYEE MODAL (existing functions)
+function openEmployeeModal(action, id = '', name = '', role = '', email = '', phone = '') {
+    currentAction = action;
+    currentEmployeeId = id;
+    
+    // Stocker le bouton cliqué pour l'animation (seulement pour edit/delete)
+    if (action !== 'create') {
+        clickedButton = event.target.closest('.action-btn');
+    }
+    
+    const modal = document.getElementById('employeeModal');
+    const modalContent = document.getElementById('employeeModalContent');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const confirmBtn = document.getElementById('confirmBtn');
+    
+    // Positionner la modale au niveau du bouton cliqué pour l'animation (seulement pour edit/delete)
+    if (clickedButton) {
+        const buttonRect = clickedButton.getBoundingClientRect();
+        modalContent.style.transformOrigin = `${buttonRect.left + buttonRect.width/2}px ${buttonRect.top + buttonRect.height/2}px`;
+    } else {
+        // Pour le mode création, centrer l'animation
+        modalContent.style.transformOrigin = 'center';
+    }
+    
+    if (action === 'create') {
+        modalIcon.className = 'fas fa-user-plus';
+        modalTitle.textContent = 'Ajouter un nouvel employé';
+        confirmBtn.textContent = 'Créer l\'employé';
+        confirmBtn.className = 'modal-btn confirm';
+        
+        // Générer les options de poste dynamiquement
+        let roleOptions = `
+            <option value="">Sélectionner un poste</option>
+            <option value="Cuisine">Cuisine</option>
+            <option value="Service">Service</option>
+            <option value="Bar">Bar</option>
+            <option value="Accueil">Accueil</option>
+            <option value="Management">Management</option>
+            <option value="Nettoyage">Nettoyage</option>
+        `;
+        
+        // Ajouter les catégories personnalisées depuis le DOM
+        const customCategories = document.querySelectorAll('.employee-category .category-info h4');
+        const addedCategories = new Set(['Cuisine', 'Service', 'Bar', 'Accueil', 'Management', 'Nettoyage']);
+        
+        customCategories.forEach(categoryElement => {
+            const categoryName = categoryElement.textContent.trim();
+            if (!addedCategories.has(categoryName)) {
+                roleOptions += `<option value="${categoryName}">${categoryName}</option>`;
+                addedCategories.add(categoryName);
+            }
+        });
+        
+        modalBody.innerHTML = `
+            <div class="form-group">
+                <label>Nom complet</label>
+                <input type="text" id="employeeName" placeholder="Ex: Ahmed Benali">
+            </div>
+            <div class="form-group">
+                <label>Poste</label>
+                <select id="employeeRole">
+                    ${roleOptions}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="employeeEmail" placeholder="exemple@restaurant.ma">
+            </div>
+            <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" id="employeePhone" placeholder="+212 6 XX XX XX XX">
+            </div>
+        `;
+    } else if (action === 'edit') {
+        modalIcon.className = 'fas fa-user-edit';
+        modalTitle.textContent = 'Modifier l\'employé';
+        confirmBtn.textContent = 'Sauvegarder';
+        confirmBtn.className = 'modal-btn confirm';
+        
+        // Générer les options de poste dynamiquement (même logique que pour create)
+        let roleOptions = `
+            <option value="">Sélectionner un poste</option>
+            <option value="Cuisine" ${role === 'Cuisine' ? 'selected' : ''}>Cuisine</option>
+            <option value="Service" ${role === 'Service' ? 'selected' : ''}>Service</option>
+            <option value="Bar" ${role === 'Bar' ? 'selected' : ''}>Bar</option>
+            <option value="Accueil" ${role === 'Accueil' ? 'selected' : ''}>Accueil</option>
+            <option value="Management" ${role === 'Management' ? 'selected' : ''}>Management</option>
+            <option value="Nettoyage" ${role === 'Nettoyage' ? 'selected' : ''}>Nettoyage</option>
+        `;
+        
+        // Ajouter les catégories personnalisées depuis le DOM
+        const customCategories = document.querySelectorAll('.employee-category .category-info h4');
+        const addedCategories = new Set(['Cuisine', 'Service', 'Bar', 'Accueil', 'Management', 'Nettoyage']);
+        
+        customCategories.forEach(categoryElement => {
+            const categoryName = categoryElement.textContent.trim();
+            if (!addedCategories.has(categoryName)) {
+                const isSelected = role === categoryName ? 'selected' : '';
+                roleOptions += `<option value="${categoryName}" ${isSelected}>${categoryName}</option>`;
+                addedCategories.add(categoryName);
+            }
+        });
+        
+        // Si le poste actuel n'est pas dans les catégories connues, l'ajouter
+        if (role && !addedCategories.has(role)) {
+            roleOptions += `<option value="${role}" selected>${role}</option>`;
+        }
+        
+        modalBody.innerHTML = `
+            <div class="form-group">
+                <label>Nom complet</label>
+                <input type="text" id="employeeName" value="${name}">
+            </div>
+            <div class="form-group">
+                <label>Poste</label>
+                <select id="employeeRole">
+                    ${roleOptions}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="employeeEmail" value="${email}">
+            </div>
+            <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" id="employeePhone" value="${phone}" placeholder="+212 6 XX XX XX XX">
+            </div>
+        `;
+    } else if (action === 'delete') {
+        modalIcon.className = 'fas fa-user-times';
+        modalTitle.textContent = 'Supprimer l\'employé';
+        confirmBtn.textContent = 'Supprimer';
+        confirmBtn.className = 'modal-btn danger';
+        
+        modalBody.innerHTML = `
+            <p style="color: #6b7280; line-height: 1.5; margin: 0;">
+                Êtes-vous sûr de vouloir supprimer <strong>${name}</strong> ?<br>
+                Cette action est irréversible.
+            </p>
+        `;
+    }
+    
+    // Animation d'ouverture (aspiration inversée)
+    modal.classList.add('active');
+    setTimeout(() => {
+        modalContent.classList.add('active');
+    }, 50);
+}
+
+function closeEmployeeModal() {
+    const modal = document.getElementById('employeeModal');
+    const modalContent = document.getElementById('employeeModalContent');
+    
+    // Animation de fermeture (aspiration vers le bouton)
+    modalContent.classList.add('closing');
+    modalContent.classList.remove('active');
+    
+    setTimeout(() => {
+        modal.classList.remove('active');
+        modalContent.classList.remove('closing');
+        currentAction = '';
+        currentEmployeeId = '';
+        clickedButton = null;
+    }, 300);
+}
+
+function confirmAction() {
+    if (currentAction === 'create') {
+        const name = document.getElementById('employeeName').value;
+        const role = document.getElementById('employeeRole').value;
+        const email = document.getElementById('employeeEmail').value;
+        const phone = document.getElementById('employeePhone').value;
+        
+        // Validation simple
+        if (!name.trim()) {
+            const nameInput = document.getElementById('employeeName');
+            nameInput.classList.add('error');
+            nameInput.focus();
+            nameInput.addEventListener('input', function() {
+                this.classList.remove('error');
+            }, { once: true });
+            return;
+        }
+        
+        if (!role) {
+            const roleSelect = document.getElementById('employeeRole');
+            roleSelect.classList.add('error');
+            roleSelect.focus();
+            roleSelect.addEventListener('change', function() {
+                this.classList.remove('error');
+            }, { once: true });
+            return;
+        }
+        
+        // Ici vous pouvez ajouter la logique pour créer l'employé
+        console.log('Créer nouvel employé:', { name, role, email, phone });
+        
+        // Créer un formulaire pour créer l'employé
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/dashboard';
+        form.style.display = 'none';
+        
+        const nomInput = document.createElement('input');
+        nomInput.type = 'hidden';
+        nomInput.name = 'nom';
+        nomInput.value = name;
+        
+        const posteInput = document.createElement('input');
+        posteInput.type = 'hidden';
+        posteInput.name = 'poste';
+        posteInput.value = role;
+        
+        const emailInput = document.createElement('input');
+        emailInput.type = 'hidden';
+        emailInput.name = 'email';
+        emailInput.value = email;
+        
+        const telephoneInput = document.createElement('input');
+        telephoneInput.type = 'hidden';
+        telephoneInput.name = 'telephone';
+        telephoneInput.value = phone;
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'create_employee';
+        actionInput.value = '1';
+        
+        form.appendChild(nomInput);
+        form.appendChild(posteInput);
+        form.appendChild(emailInput);
+        form.appendChild(telephoneInput);
+        form.appendChild(actionInput);
+        document.body.appendChild(form);
+        
+        // Fermer la modale
+        closeEmployeeModal();
+        
+        // Soumettre le formulaire
+        form.submit();
+        
+    } else if (currentAction === 'edit') {
+        const name = document.getElementById('employeeName').value;
+        const role = document.getElementById('employeeRole').value;
+        const email = document.getElementById('employeeEmail').value;
+        const phone = document.getElementById('employeePhone').value;
+        
+        // Validation simple
+        if (!name.trim()) {
+            const nameInput = document.getElementById('employeeName');
+            nameInput.classList.add('error');
+            nameInput.focus();
+            nameInput.addEventListener('input', function() {
+                this.classList.remove('error');
+            }, { once: true });
+            return;
+        }
+        
+        if (!role) {
+            const roleSelect = document.getElementById('employeeRole');
+            roleSelect.classList.add('error');
+            roleSelect.focus();
+            roleSelect.addEventListener('change', function() {
+                this.classList.remove('error');
+            }, { once: true });
+            return;
+        }
+        
+        // Créer un formulaire pour modifier l'employé
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/dashboard';
+        form.style.display = 'none';
+        
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'employee_id';
+        idInput.value = currentEmployeeId;
+        
+        const nomInput = document.createElement('input');
+        nomInput.type = 'hidden';
+        nomInput.name = 'nom';
+        nomInput.value = name;
+        
+        const posteInput = document.createElement('input');
+        posteInput.type = 'hidden';
+        posteInput.name = 'poste';
+        posteInput.value = role;
+        
+        const emailInput = document.createElement('input');
+        emailInput.type = 'hidden';
+        emailInput.name = 'email';
+        emailInput.value = email;
+        
+        const telephoneInput = document.createElement('input');
+        telephoneInput.type = 'hidden';
+        telephoneInput.name = 'telephone';
+        telephoneInput.value = phone;
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'update_employee';
+        actionInput.value = '1';
+        
+        form.appendChild(idInput);
+        form.appendChild(nomInput);
+        form.appendChild(posteInput);
+        form.appendChild(emailInput);
+        form.appendChild(telephoneInput);
+        form.appendChild(actionInput);
+        document.body.appendChild(form);
+        
+        // Fermer la modale
+        closeEmployeeModal();
+        
+        // Soumettre le formulaire
+        form.submit();
+        
+    } else if (currentAction === 'delete') {
+        // Créer un formulaire pour supprimer l'employé
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/dashboard';
+        form.style.display = 'none';
+        
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'employee_id';
+        idInput.value = currentEmployeeId;
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'delete_employee';
+        actionInput.value = '1';
+        
+        form.appendChild(idInput);
+        form.appendChild(actionInput);
+        document.body.appendChild(form);
+        
+        // Fermer la modale
+        closeEmployeeModal();
+        
+        // Soumettre le formulaire
+        form.submit();
+    }
+    
+    closeEmployeeModal();
+}
+
+function confirmDelete(categoryId, categoryName) {
+    // Cette fonction n'est plus utilisée - remplacée par le système de modal
+    console.log('Fonction confirmDelete obsolète - utiliser openDeleteConfirmModal à la place');
+}
+
+// PRODUCT CATEGORY ACTIONS
+function editProductCategory(id, name, icon) {
+    console.log('editProductCategory called:', id, name, icon);
+    
+    try {
+        // Ouvrir la modale de modification avec les données pré-remplies
+        const modal = document.getElementById('productCategoryModal');
+        const modalContent = document.getElementById('productCategoryModalContent');
+        
+        if (!modal || !modalContent) {
+            console.error('Modal elements not found');
+            return;
+        }
+        
+        const modalTitle = modal.querySelector('.modal-header h3');
+        const confirmBtn = modal.querySelector('.modal-btn.confirm');
+        
+        if (!modalTitle || !confirmBtn) {
+            console.error('Modal title or confirm button not found');
+            return;
+        }
+        
+        // Changer le titre et le bouton
+        modalTitle.textContent = 'Modifier la catégorie de produit';
+        confirmBtn.textContent = 'Sauvegarder les modifications';
+        confirmBtn.onclick = () => updateProductCategory(id);
+        
+        // Pré-remplir les champs
+        const nameInput = document.getElementById('productCategoryName');
+        if (nameInput) {
+            nameInput.value = name;
+        }
+        
+        // Sélectionner l'icône correspondante
+        const iconSelect = document.getElementById('productCategoryIcon');
+        if (iconSelect) {
+            for (let i = 0; i < iconSelect.options.length; i++) {
+                if (iconSelect.options[i].value === icon) {
+                    iconSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+        
+        // Ouvrir la modale
+        modal.classList.add('active');
+        setTimeout(() => {
+            modalContent.classList.add('active');
+        }, 50);
+        
+        console.log('Modal opened successfully');
+    } catch (error) {
+        console.error('Error in editProductCategory:', error);
+    }
+}
+
+function updateProductCategory(id) {
+    const name = document.getElementById('productCategoryName').value;
+    const icon = document.getElementById('productCategoryIcon').value;
+    
+    if (!name.trim()) {
+        // Afficher un message d'erreur dans la modale au lieu d'une alerte
+        const nameInput = document.getElementById('productCategoryName');
+        nameInput.classList.add('error');
+        nameInput.focus();
+        
+        // Retirer la classe d'erreur quand l'utilisateur tape
+        nameInput.addEventListener('input', function() {
+            this.classList.remove('error');
+        }, { once: true });
+        
+        return;
+    }
+    
+    // Créer un formulaire pour modifier la catégorie
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/dashboard';
+    form.style.display = 'none';
+    
+    const nameInput = document.createElement('input');
+    nameInput.type = 'hidden';
+    nameInput.name = 'nom';
+    nameInput.value = name;
+    
+    const idInput = document.createElement('input');
+    idInput.type = 'hidden';
+    idInput.name = 'category_id';
+    idInput.value = id;
+    
+    const typeInput = document.createElement('input');
+    typeInput.type = 'hidden';
+    typeInput.name = 'category_type';
+    typeInput.value = 'product';
+    
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'update_category';
+    actionInput.value = '1';
+    
+    form.appendChild(nameInput);
+    form.appendChild(idInput);
+    form.appendChild(typeInput);
+    form.appendChild(actionInput);
+    document.body.appendChild(form);
+    
+    // Fermer la modale
+    closeProductCategoryModal();
+    
+    // Réinitialiser la modale pour la création
+    resetProductCategoryModal();
+    
+    // Soumettre le formulaire
+    form.submit();
+}
+
+function deleteProductCategory(id, name) {
+    openDeleteConfirmModal('product', id, name);
+}
+
+// PRODUCT ACTIONS
+function editProduct(id, name, description, price, categoryId, imageUrl = '') {
+    openProductModal('edit', id, name, description, price, categoryId, imageUrl);
+}
+
+function deleteProduct(id, name) {
+    openDeleteConfirmModal('product', id, name);
+}
+
+// Variables globales pour la suppression
+let deleteItemType = '';
+let deleteItemId = '';
+
+function openDeleteConfirmModal(type, id, name) {
+    deleteItemType = type;
+    deleteItemId = id;
+    
+    const modal = document.getElementById('deleteConfirmModal');
+    const modalContent = document.getElementById('deleteConfirmModalContent');
+    const message = document.getElementById('deleteConfirmMessage');
+    
+    let itemLabel = '';
+    if (type === 'product') {
+        itemLabel = 'le produit';
+    } else if (type === 'employee') {
+        itemLabel = 'l\'employé';
+    } else if (type === 'reservation') {
+        itemLabel = 'la réservation';
+    }
+    
+    message.innerHTML = `Êtes-vous sûr de vouloir supprimer ${itemLabel} <strong>"${name}"</strong> ?`;
+    
+    modal.classList.add('active');
+    setTimeout(() => {
+        modalContent.classList.add('active');
+    }, 50);
+}
+
+function closeDeleteConfirmModal() {
+    const modal = document.getElementById('deleteConfirmModal');
+    const modalContent = document.getElementById('deleteConfirmModalContent');
+    
+    modalContent.classList.add('closing');
+    modalContent.classList.remove('active');
+    
+    setTimeout(() => {
+        modal.classList.remove('active');
+        modalContent.classList.remove('closing');
+        deleteItemType = '';
+        deleteItemId = '';
+    }, 300);
+}
+
+function confirmDelete() {
+    console.log('confirmDelete called');
+    console.log('deleteItemType:', deleteItemType);
+    console.log('deleteItemId:', deleteItemId);
+    
+    if (deleteItemType === 'product') {
+        // Supprimer un produit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ path('app_dashboard') }}';
+        
+        const deleteInput = document.createElement('input');
+        deleteInput.type = 'hidden';
+        deleteInput.name = 'delete_product';
+        deleteInput.value = '1';
+        form.appendChild(deleteInput);
+        
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'product_id';
+        idInput.value = deleteItemId;
+        form.appendChild(idInput);
+        
+        console.log('Form created:', form);
+        console.log('Form HTML:', form.innerHTML);
+        console.log('Submitting delete form for product:', deleteItemId);
+        
+        document.body.appendChild(form);
+        form.submit();
+        
+    } else if (deleteItemType === 'category') {
+        // Supprimer une catégorie (ancienne logique)
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/dashboard';
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'delete_category';
+        actionInput.value = '1';
+        form.appendChild(actionInput);
+        
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'category_id';
+        idInput.value = deleteItemId;
+        form.appendChild(idInput);
+        
+        const typeInput = document.createElement('input');
+        typeInput.type = 'hidden';
+        typeInput.name = 'category_type';
+        typeInput.value = deleteItemType;
+        form.appendChild(typeInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+        
+    } else {
+        console.log('deleteItemType is not recognized:', deleteItemType);
+    }
+}
+
+// EMPLOYEE CATEGORY ACTIONS
+function editEmployeeCategory(id, name, icon) {
+    console.log('editEmployeeCategory called:', id, name, icon);
+    
+    try {
+        // Ouvrir la modale de modification avec les données pré-remplies
+        const modal = document.getElementById('employeeCategoryModal');
+        const modalContent = document.getElementById('employeeCategoryModalContent');
+        
+        if (!modal || !modalContent) {
+            console.error('Employee modal elements not found');
+            return;
+        }
+        
+        const modalTitle = modal.querySelector('.modal-header h3');
+        const confirmBtn = modal.querySelector('.modal-btn.confirm');
+        
+        if (!modalTitle || !confirmBtn) {
+            console.error('Employee modal title or confirm button not found');
+            return;
+        }
+        
+        // Changer le titre et le bouton
+        modalTitle.textContent = 'Modifier la catégorie d\'employé';
+        confirmBtn.textContent = 'Sauvegarder les modifications';
+        confirmBtn.onclick = () => updateEmployeeCategory(id);
+        
+        // Pré-remplir les champs
+        const nameInput = document.getElementById('employeeCategoryName');
+        if (nameInput) {
+            nameInput.value = name;
+        }
+        
+        // Sélectionner l'icône correspondante
+        const iconSelect = document.getElementById('employeeCategoryIcon');
+        if (iconSelect) {
+            for (let i = 0; i < iconSelect.options.length; i++) {
+                if (iconSelect.options[i].value === icon) {
+                    iconSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+        
+        // Ouvrir la modale
+        modal.classList.add('active');
+        setTimeout(() => {
+            modalContent.classList.add('active');
+        }, 50);
+        
+        console.log('Employee modal opened successfully');
+    } catch (error) {
+        console.error('Error in editEmployeeCategory:', error);
+    }
+}
+
+function updateEmployeeCategory(id) {
+    const name = document.getElementById('employeeCategoryName').value;
+    const icon = document.getElementById('employeeCategoryIcon').value;
+    
+    if (!name.trim()) {
+        // Afficher un message d'erreur dans la modale au lieu d'une alerte
+        const nameInput = document.getElementById('employeeCategoryName');
+        nameInput.classList.add('error');
+        nameInput.focus();
+        
+        // Retirer la classe d'erreur quand l'utilisateur tape
+        nameInput.addEventListener('input', function() {
+            this.classList.remove('error');
+        }, { once: true });
+        
+        return;
+    }
+    
+    // Créer un formulaire pour modifier la catégorie d'employé
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/dashboard';
+    form.style.display = 'none';
+    
+    const nameInput = document.createElement('input');
+    nameInput.type = 'hidden';
+    nameInput.name = 'nom';
+    nameInput.value = name;
+    
+    const idInput = document.createElement('input');
+    idInput.type = 'hidden';
+    idInput.name = 'category_id';
+    idInput.value = id;
+    
+    const typeInput = document.createElement('input');
+    typeInput.type = 'hidden';
+    typeInput.name = 'category_type';
+    typeInput.value = 'employee';
+    
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'update_category';
+    actionInput.value = '1';
+    
+    form.appendChild(nameInput);
+    form.appendChild(idInput);
+    form.appendChild(typeInput);
+    form.appendChild(actionInput);
+    document.body.appendChild(form);
+    
+    // Fermer la modale
+    closeEmployeeCategoryModal();
+    
+    // Réinitialiser la modale pour la création
+    resetEmployeeCategoryModal();
+    
+    // Soumettre le formulaire
+    form.submit();
+}
+
+function deleteEmployeeCategory(id, name) {
+    openDeleteConfirmModal('employee', id, name);
+}
+
+// RESET MODAL FUNCTIONS
+function resetProductCategoryModal() {
+    const modal = document.getElementById('productCategoryModal');
+    const modalTitle = modal.querySelector('.modal-header h3');
+    const confirmBtn = modal.querySelector('.modal-btn.confirm');
+    
+    modalTitle.textContent = 'Nouvelle catégorie de produit';
+    confirmBtn.textContent = 'Créer la catégorie';
+    confirmBtn.onclick = saveProductCategory;
+}
+
+function resetEmployeeCategoryModal() {
+    const modal = document.getElementById('employeeCategoryModal');
+    const modalTitle = modal.querySelector('.modal-header h3');
+    const confirmBtn = modal.querySelector('.modal-btn.confirm');
+    
+    modalTitle.textContent = 'Nouvelle catégorie d\'employé';
+    confirmBtn.textContent = 'Créer la catégorie';
+    confirmBtn.onclick = saveEmployeeCategory;
+}
+
+// Fermer les modales en cliquant sur l'overlay
+document.getElementById('deleteConfirmModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDeleteConfirmModal();
+    }
+});
+
+document.getElementById('categoryChoiceModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeCategoryChoiceModal();
+    }
+});
+
+document.getElementById('productCategoryModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeProductCategoryModal();
+    }
+});
+
+document.getElementById('employeeCategoryModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeEmployeeCategoryModal();
+    }
+});
+
+document.getElementById('employeeModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeEmployeeModal();
+    }
+});
+
+// PRODUCT MODAL FUNCTIONS
+let currentProductAction = '';
+let currentProductId = '';
+
+function openProductModal(action, id = '', name = '', description = '', price = '', categoryId = '', imageUrl = '') {
+    currentProductAction = action;
+    currentProductId = id;
+    
+    const modal = document.getElementById('productModal');
+    const modalContent = document.getElementById('productModalContent');
+    const modalIcon = document.getElementById('productModalIcon');
+    const modalTitle = document.getElementById('productModalTitle');
+    const modalBody = document.getElementById('productModalBody');
+    const confirmBtn = document.getElementById('productConfirmBtn');
+    
+    // Générer les options de catégories depuis les données PHP
+    let categoryOptions = '<option value="">Sélectionner une catégorie</option>';
+    
+    // Récupérer les catégories depuis le template Twig (passées par le contrôleur)
+    {% if categories is defined %}
+        {% for category in categories %}
+            categoryOptions += '<option value="{{ category.id }}" ' + (categoryId == '{{ category.id }}' ? 'selected' : '') + '>{{ category.nomMenu|e('js') }}</option>';
+        {% endfor %}
+    {% endif %}
+    
+    if (action === 'create') {
+        modalIcon.className = 'fas fa-plus-circle';
+        modalTitle.textContent = 'Ajouter un nouveau produit';
+        confirmBtn.textContent = 'Créer le produit';
+        confirmBtn.className = 'modal-btn confirm';
+        
+        modalBody.innerHTML = `
+            <div class="form-group">
+                <label>Nom du produit</label>
+                <input type="text" id="productName" placeholder="Ex: Tajine aux légumes">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="productDescription" placeholder="Description du produit..." rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Prix (DH)</label>
+                <input type="number" id="productPrice" placeholder="0.00" step="0.01" min="0">
+            </div>
+            <div class="form-group">
+                <label>URL de l'image</label>
+                <input type="url" id="productImageUrl" placeholder="https://exemple.com/image.jpg">
+            </div>
+            <div class="form-group">
+                <label>Catégorie</label>
+                <select id="productCategory">
+                    ${categoryOptions}
+                </select>
+            </div>
+        `;
+    } else if (action === 'edit') {
+        modalIcon.className = 'fas fa-edit';
+        modalTitle.textContent = 'Modifier le produit';
+        confirmBtn.textContent = 'Sauvegarder';
+        confirmBtn.className = 'modal-btn confirm';
+        
+        modalBody.innerHTML = `
+            <div class="form-group">
+                <label>Nom du produit</label>
+                <input type="text" id="productName" value="${name}">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="productDescription" rows="3">${description}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Prix (DH)</label>
+                <input type="number" id="productPrice" value="${price}" step="0.01" min="0">
+            </div>
+            <div class="form-group">
+                <label>URL de l'image</label>
+                <input type="url" id="productImageUrl" value="${imageUrl}" placeholder="https://exemple.com/image.jpg">
+            </div>
+            <div class="form-group">
+                <label>Catégorie</label>
+                <select id="productCategory">
+                    ${categoryOptions}
+                </select>
+            </div>
+        `;
+    }
+    
+    modal.classList.add('active');
+    setTimeout(() => {
+        modalContent.classList.add('active');
+    }, 50);
+}
+
+function closeProductModal() {
+    const modal = document.getElementById('productModal');
+    const modalContent = document.getElementById('productModalContent');
+    
+    modalContent.classList.add('closing');
+    modalContent.classList.remove('active');
+    
+    setTimeout(() => {
+        modal.classList.remove('active');
+        modalContent.classList.remove('closing');
+        currentProductAction = '';
+        currentProductId = '';
+    }, 300);
+}
+
+function confirmProductAction() {
+    const name = document.getElementById('productName').value;
+    const description = document.getElementById('productDescription').value;
+    const price = document.getElementById('productPrice').value;
+    const categorySelect = document.getElementById('productCategory');
+    const categoryId = categorySelect.value;
+    const imageUrl = document.getElementById('productImageUrl').value;
+    
+    console.log('Confirm product action:', {
+        action: currentProductAction,
+        id: currentProductId,
+        name: name,
+        description: description,
+        price: price,
+        categoryId: categoryId,
+        imageUrl: imageUrl
+    });
+    
+    // Validation
+    if (!name.trim()) {
+        const nameInput = document.getElementById('productName');
+        nameInput.classList.add('error');
+        nameInput.focus();
+        nameInput.addEventListener('input', function() {
+            this.classList.remove('error');
+        }, { once: true });
+        return;
+    }
+    
+    if (!price || parseFloat(price) <= 0) {
+        const priceInput = document.getElementById('productPrice');
+        priceInput.classList.add('error');
+        priceInput.focus();
+        priceInput.addEventListener('input', function() {
+            this.classList.remove('error');
+        }, { once: true });
+        return;
+    }
+    
+    if (!categoryId) {
+        categorySelect.classList.add('error');
+        categorySelect.focus();
+        categorySelect.addEventListener('change', function() {
+            this.classList.remove('error');
+        }, { once: true });
+        return;
+    }
+    
+    // Créer un formulaire et le soumettre
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ path('app_dashboard') }}';
+    
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'product_action';
+    actionInput.value = currentProductAction;
+    form.appendChild(actionInput);
+    
+    if (currentProductAction === 'edit' && currentProductId) {
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'product_id';
+        idInput.value = currentProductId;
+        form.appendChild(idInput);
+    }
+    
+    const nameInput = document.createElement('input');
+    nameInput.type = 'hidden';
+    nameInput.name = 'product_name';
+    nameInput.value = name;
+    form.appendChild(nameInput);
+    
+    const descInput = document.createElement('input');
+    descInput.type = 'hidden';
+    descInput.name = 'product_description';
+    descInput.value = description;
+    form.appendChild(descInput);
+    
+    const priceInput = document.createElement('input');
+    priceInput.type = 'hidden';
+    priceInput.name = 'product_price';
+    priceInput.value = price;
+    form.appendChild(priceInput);
+    
+    const categoryInput = document.createElement('input');
+    categoryInput.type = 'hidden';
+    categoryInput.name = 'product_category';
+    categoryInput.value = categoryId;
+    form.appendChild(categoryInput);
+    
+    const imageInput = document.createElement('input');
+    imageInput.type = 'hidden';
+    imageInput.name = 'product_image_url';
+    imageInput.value = imageUrl;
+    form.appendChild(imageInput);
+    
+    console.log('Submitting form with data:', {
+        product_action: actionInput.value,
+        product_id: currentProductId,
+        product_name: nameInput.value,
+        product_price: priceInput.value,
+        product_category: categoryInput.value
+    });
+    
+    document.body.appendChild(form);
+    
+    // Debug: log form before submission
+    console.log('Form HTML:', form.innerHTML);
+    console.log('Form action:', form.action);
+    console.log('Form method:', form.method);
+    
+    form.submit();
+}
+
+// Fermer la modale produit en cliquant sur l'overlay
+document.getElementById('productModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeProductModal();
+    }
+});
+
+// Fermer la modale de confirmation en cliquant sur l'overlay
+document.getElementById('deleteConfirmModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDeleteConfirmModal();
+    }
+});
+
+// RESERVATION MODAL FUNCTIONS
+let currentReservationAction = '';
+let currentReservationId = '';
+
+function openReservationModal(action, id = '', clientName = '', date = '', time = '', persons = '', phone = '', notes = '', tableId = '') {
+    currentReservationAction = action;
+    currentReservationId = id;
+    
+    const modal = document.getElementById('reservationModal');
+    const modalContent = document.getElementById('reservationModalContent');
+    const modalIcon = document.getElementById('reservationModalIcon');
+    const modalTitle = document.getElementById('reservationModalTitle');
+    const modalBody = document.getElementById('reservationModalBody');
+    const confirmBtn = document.getElementById('reservationConfirmBtn');
+    
+    // Générer les options de tables (pour l'instant statique, à améliorer plus tard)
+    let tableOptions = '<option value="">Sélectionner une table</option>';
+    for (let i = 1; i <= 20; i++) {
+        const isSelected = tableId && tableId == i ? 'selected' : '';
+        tableOptions += `<option value="${i}" ${isSelected}>Table ${i}</option>`;
+    }
+    
+    // Date et heure par défaut (maintenant + 1 heure)
+    const now = new Date();
+    const defaultDate = date || now.toISOString().split('T')[0];
+    const defaultTime = time || String(now.getHours() + 1).padStart(2, '0') + ':00';
+    
+    if (action === 'create') {
+        modalIcon.className = 'fas fa-calendar-plus';
+        modalTitle.textContent = 'Nouvelle réservation';
+        confirmBtn.textContent = 'Créer la réservation';
+        confirmBtn.className = 'modal-btn confirm';
+        
+        modalBody.innerHTML = `
+            <div class="form-group">
+                <label>Nom du client</label>
+                <input type="text" id="reservationClientName" placeholder="Ex: Ahmed Benali">
+            </div>
+            <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" id="reservationPhone" placeholder="+212 6 XX XX XX XX">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="reservationDate" value="${defaultDate}">
+                </div>
+                <div class="form-group">
+                    <label>Heure</label>
+                    <input type="time" id="reservationTime" value="${defaultTime}">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label>Nombre de personnes</label>
+                    <input type="number" id="reservationPersons" min="1" max="20" value="2">
+                </div>
+                <div class="form-group">
+                    <label>Table</label>
+                    <select id="reservationTable">
+                        ${tableOptions}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Notes (optionnel)</label>
+                <textarea id="reservationNotes" placeholder="Allergies, demandes spéciales..." rows="3"></textarea>
+            </div>
+        `;
+    } else if (action === 'edit') {
+        modalIcon.className = 'fas fa-calendar-edit';
+        modalTitle.textContent = 'Modifier la réservation';
+        confirmBtn.textContent = 'Sauvegarder';
+        confirmBtn.className = 'modal-btn confirm';
+        
+        modalBody.innerHTML = `
+            <div class="form-group">
+                <label>Nom du client</label>
+                <input type="text" id="reservationClientName" value="${clientName}">
+            </div>
+            <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" id="reservationPhone" value="${phone}">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="reservationDate" value="${date}">
+                </div>
+                <div class="form-group">
+                    <label>Heure</label>
+                    <input type="time" id="reservationTime" value="${time}">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label>Nombre de personnes</label>
+                    <input type="number" id="reservationPersons" min="1" max="20" value="${persons}">
+                </div>
+                <div class="form-group">
+                    <label>Table</label>
+                    <select id="reservationTable">
+                        ${tableOptions}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Notes (optionnel)</label>
+                <textarea id="reservationNotes" rows="3">${notes}</textarea>
+            </div>
+        `;
+    } else if (action === 'delete') {
+        modalIcon.className = 'fas fa-calendar-times';
+        modalTitle.textContent = 'Supprimer la réservation';
+        confirmBtn.textContent = 'Supprimer';
+        confirmBtn.className = 'modal-btn danger';
+        
+        modalBody.innerHTML = `
+            <p style="color: #6b7280; line-height: 1.5; margin: 0;">
+                Êtes-vous sûr de vouloir supprimer la réservation de <strong>${clientName}</strong> ?<br>
+                Cette action est irréversible.
+            </p>
+        `;
+    }
+    
+    modal.classList.add('active');
+    setTimeout(() => {
+        modalContent.classList.add('active');
+    }, 50);
+}
+
+function closeReservationModal() {
+    const modal = document.getElementById('reservationModal');
+    const modalContent = document.getElementById('reservationModalContent');
+    
+    modalContent.classList.add('closing');
+    modalContent.classList.remove('active');
+    
+    setTimeout(() => {
+        modal.classList.remove('active');
+        modalContent.classList.remove('closing');
+        currentReservationAction = '';
+        currentReservationId = '';
+    }, 300);
+}
+
+function confirmReservationAction() {
+    if (currentReservationAction === 'create') {
+        const clientName = document.getElementById('reservationClientName').value;
+        const phone = document.getElementById('reservationPhone').value;
+        const date = document.getElementById('reservationDate').value;
+        const time = document.getElementById('reservationTime').value;
+        const persons = document.getElementById('reservationPersons').value;
+        const table = document.getElementById('reservationTable').value;
+        const notes = document.getElementById('reservationNotes').value;
+        
+        // Validation
+        if (!clientName.trim()) {
+            const nameInput = document.getElementById('reservationClientName');
+            nameInput.classList.add('error');
+            nameInput.focus();
+            nameInput.addEventListener('input', function() {
+                this.classList.remove('error');
+            }, { once: true });
+            return;
+        }
+        
+        if (!phone.trim()) {
+            const phoneInput = document.getElementById('reservationPhone');
+            phoneInput.classList.add('error');
+            phoneInput.focus();
+            phoneInput.addEventListener('input', function() {
+                this.classList.remove('error');
+            }, { once: true });
+            return;
+        }
+        
+        if (!date) {
+            const dateInput = document.getElementById('reservationDate');
+            dateInput.classList.add('error');
+            dateInput.focus();
+            dateInput.addEventListener('change', function() {
+                this.classList.remove('error');
+            }, { once: true });
+            return;
+        }
+        
+        if (!time) {
+            const timeInput = document.getElementById('reservationTime');
+            timeInput.classList.add('error');
+            timeInput.focus();
+            timeInput.addEventListener('change', function() {
+                this.classList.remove('error');
+            }, { once: true });
+            return;
+        }
+        
+        // Créer un formulaire pour créer la réservation
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/dashboard';
+        form.style.display = 'none';
+        
+        const clientNameInput = document.createElement('input');
+        clientNameInput.type = 'hidden';
+        clientNameInput.name = 'client_name';
+        clientNameInput.value = clientName;
+        
+        const phoneInput = document.createElement('input');
+        phoneInput.type = 'hidden';
+        phoneInput.name = 'phone';
+        phoneInput.value = phone;
+        
+        const dateInput = document.createElement('input');
+        dateInput.type = 'hidden';
+        dateInput.name = 'date';
+        dateInput.value = date;
+        
+        const timeInput = document.createElement('input');
+        timeInput.type = 'hidden';
+        timeInput.name = 'time';
+        timeInput.value = time;
+        
+        const personsInput = document.createElement('input');
+        personsInput.type = 'hidden';
+        personsInput.name = 'persons';
+        personsInput.value = persons;
+        
+        const tableInput = document.createElement('input');
+        tableInput.type = 'hidden';
+        tableInput.name = 'table_id';
+        tableInput.value = table;
+        
+        const notesInput = document.createElement('input');
+        notesInput.type = 'hidden';
+        notesInput.name = 'notes';
+        notesInput.value = notes;
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'create_reservation';
+        actionInput.value = '1';
+        
+        form.appendChild(clientNameInput);
+        form.appendChild(phoneInput);
+        form.appendChild(dateInput);
+        form.appendChild(timeInput);
+        form.appendChild(personsInput);
+        form.appendChild(tableInput);
+        form.appendChild(notesInput);
+        form.appendChild(actionInput);
+        document.body.appendChild(form);
+        
+        // Fermer la modale
+        closeReservationModal();
+        
+        // Soumettre le formulaire
+        form.submit();
+        
+    } else if (currentReservationAction === 'edit') {
+        const clientName = document.getElementById('reservationClientName').value;
+        const phone = document.getElementById('reservationPhone').value;
+        const date = document.getElementById('reservationDate').value;
+        const time = document.getElementById('reservationTime').value;
+        const persons = document.getElementById('reservationPersons').value;
+        const table = document.getElementById('reservationTable').value;
+        const notes = document.getElementById('reservationNotes').value;
+        
+        // Validation (même que pour create)
+        if (!clientName.trim() || !phone.trim() || !date || !time) {
+            // Même logique de validation que pour create
+            return;
+        }
+        
+        // Créer un formulaire pour modifier la réservation
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/dashboard';
+        form.style.display = 'none';
+        
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'reservation_id';
+        idInput.value = currentReservationId;
+        
+        const clientNameInput = document.createElement('input');
+        clientNameInput.type = 'hidden';
+        clientNameInput.name = 'client_name';
+        clientNameInput.value = clientName;
+        
+        const phoneInput = document.createElement('input');
+        phoneInput.type = 'hidden';
+        phoneInput.name = 'phone';
+        phoneInput.value = phone;
+        
+        const dateInput = document.createElement('input');
+        dateInput.type = 'hidden';
+        dateInput.name = 'date';
+        dateInput.value = date;
+        
+        const timeInput = document.createElement('input');
+        timeInput.type = 'hidden';
+        timeInput.name = 'time';
+        timeInput.value = time;
+        
+        const personsInput = document.createElement('input');
+        personsInput.type = 'hidden';
+        personsInput.name = 'persons';
+        personsInput.value = persons;
+        
+        const tableInput = document.createElement('input');
+        tableInput.type = 'hidden';
+        tableInput.name = 'table_id';
+        tableInput.value = table;
+        
+        const notesInput = document.createElement('input');
+        notesInput.type = 'hidden';
+        notesInput.name = 'notes';
+        notesInput.value = notes;
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'update_reservation';
+        actionInput.value = '1';
+        
+        form.appendChild(idInput);
+        form.appendChild(clientNameInput);
+        form.appendChild(phoneInput);
+        form.appendChild(dateInput);
+        form.appendChild(timeInput);
+        form.appendChild(personsInput);
+        form.appendChild(tableInput);
+        form.appendChild(notesInput);
+        form.appendChild(actionInput);
+        document.body.appendChild(form);
+        
+        // Fermer la modale
+        closeReservationModal();
+        
+        // Soumettre le formulaire
+        form.submit();
+        
+    } else if (currentReservationAction === 'delete') {
+        // Créer un formulaire pour supprimer la réservation
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/dashboard';
+        form.style.display = 'none';
+        
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'reservation_id';
+        idInput.value = currentReservationId;
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'delete_reservation';
+        actionInput.value = '1';
+        
+        form.appendChild(idInput);
+        form.appendChild(actionInput);
+        document.body.appendChild(form);
+        
+        // Fermer la modale
+        closeReservationModal();
+        
+        // Soumettre le formulaire
+        form.submit();
+    }
+}
+
+// Fermer la modale réservation en cliquant sur l'overlay
+document.getElementById('reservationModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeReservationModal();
+    }
+});
+</script>
+
+{% endblock %}

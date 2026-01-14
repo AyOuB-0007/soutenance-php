@@ -1,0 +1,1222 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - CABESTAN{% endblock %}
+
+{% block body %}
+<div class="hero-restaurant">
+    <div class="hero-content">
+        <div class="hero-text">
+            <div class="restaurant-logo">
+                <i class="fas fa-utensils"></i>
+                <h1>CABESTAN</h1>
+            </div>
+            <h2 class="hero-title">Savourez l'excellence culinaire...</h2>
+            <h3 class="hero-subtitle">dans notre restaurant authentique</h3>
+            <p class="hero-description">
+                CABESTAN vous propose une cuisine raffinée préparée avec passion par nos chefs. 
+                Découvrez nos spécialités dans un cadre chaleureux et convivial.
+            </p>
+            <div class="hero-buttons">
+                <a href="{{ path('app_restaurant_menu') }}" class="btn-primary">
+                    <i class="fas fa-book-open"></i>
+                    Découvrir notre carte
+                </a>
+                {% if not app.user %}
+                <a href="{{ path('app_login') }}" class="btn-secondary">
+                    <i class="fas fa-user"></i>
+                    Espace client
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="hero-visual">
+            <div class="floating-menu-board">
+                <div class="board-header">
+                    <i class="fas fa-star"></i>
+                    <span>Nos Spécialités</span>
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="menu-grid">
+                    {% if categories is defined and categories|length > 0 %}
+                        {% for category in categories %}
+                            {% set categoryName = category.nomMenu|lower %}
+                            {% set imageUrl = '' %}
+                            {% set iconClass = 'fas fa-utensils' %}
+                            
+                            {# Associer des images selon le nom de la catégorie #}
+                            {% if 'pizza' in categoryName %}
+                                {% set imageUrl = 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=200&h=200&fit=crop&crop=center' %}
+                            {% elseif 'burger' in categoryName or 'hamburger' in categoryName %}
+                                {% set imageUrl = 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop&crop=center' %}
+                            {% elseif 'poisson' in categoryName or 'fish' in categoryName or 'grillé' in categoryName %}
+                                {% set imageUrl = 'https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=200&h=200&fit=crop&crop=center' %}
+                            {% elseif 'dessert' in categoryName or 'gâteau' in categoryName or 'pâtisserie' in categoryName %}
+                                {% set imageUrl = 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=200&h=200&fit=crop&crop=center' %}
+                            {% elseif 'café' in categoryName or 'coffee' in categoryName or 'boisson' in categoryName %}
+                                {% set imageUrl = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=200&h=200&fit=crop&crop=center' %}
+                            {% elseif 'salade' in categoryName or 'salad' in categoryName %}
+                                {% set imageUrl = 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop&crop=center' %}
+                            {% elseif 'tajine' in categoryName or 'tagine' in categoryName %}
+                                {% set imageUrl = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop&crop=center' %}
+                            {% elseif 'couscous' in categoryName %}
+                                {% set imageUrl = 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&h=200&fit=crop&crop=center' %}
+                            {% elseif 'entrée' in categoryName or 'starter' in categoryName %}
+                                {% set imageUrl = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop&crop=center' %}
+                            {% elseif 'plat' in categoryName or 'principal' in categoryName %}
+                                {% set imageUrl = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop&crop=center' %}
+                            {% elseif 'grillade' in categoryName or 'viande' in categoryName or 'meat' in categoryName %}
+                                {% set imageUrl = 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=200&h=200&fit=crop&crop=center' %}
+                            {% elseif 'pâtes' in categoryName or 'pasta' in categoryName %}
+                                {% set imageUrl = 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=200&h=200&fit=crop&crop=center' %}
+                            {% endif %}
+                            
+                            <a href="{{ path('app_restaurant_menu') }}#category-{{ category.id }}" class="menu-item">
+                                <div class="item-image">
+                                    {% if imageUrl %}
+                                        <img src="{{ imageUrl }}" alt="{{ category.nomMenu }}" />
+                                    {% else %}
+                                        <i class="{{ iconClass }}"></i>
+                                    {% endif %}
+                                </div>
+                                <span>{{ category.nomMenu }}</span>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="menu-item">
+                            <div class="item-image">
+                                <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=200&h=200&fit=crop&crop=center" alt="Pizza Margherita" />
+                            </div>
+                            <span>Pizza Margherita</span>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-image">
+                                <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop&crop=center" alt="Burger Gourmet" />
+                            </div>
+                            <span>Burger Gourmet</span>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-image">
+                                <img src="https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=200&h=200&fit=crop&crop=center" alt="Poisson Grillé" />
+                            </div>
+                            <span>Poisson Grillé</span>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-image">
+                                <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=200&h=200&fit=crop&crop=center" alt="Desserts" />
+                            </div>
+                            <span>Desserts</span>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-image">
+                                <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=200&h=200&fit=crop&crop=center" alt="Café" />
+                            </div>
+                            <span>Café Premium</span>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-image">
+                                <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop&crop=center" alt="Salade" />
+                            </div>
+                            <span>Salades Fraîches</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="restaurant-features animate-on-scroll">
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature-card animate-fade-up" data-delay="0">
+                <div class="feature-icon">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <h3>Cuisine Authentique</h3>
+                <p>Des recettes traditionnelles préparées avec des ingrédients frais et de qualité</p>
+            </div>
+            <div class="feature-card animate-fade-up" data-delay="200">
+                <div class="feature-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Service Rapide</h3>
+                <p>Commandez en ligne et récupérez votre repas en quelques minutes</p>
+            </div>
+            <div class="feature-card animate-fade-up" data-delay="400">
+                <div class="feature-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3>Fait avec Amour</h3>
+                <p>Chaque plat est préparé avec passion pour vous offrir une expérience unique</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="services-section animate-on-scroll">
+    <div class="container">
+        <div class="section-header animate-fade-up" data-delay="0">
+            <h2>Des services variés, une seule application</h2>
+        </div>
+        <div class="services-grid">
+            <div class="service-card animate-fade-up" data-delay="100">
+                <div class="service-image">
+                    <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&h=200&fit=crop&crop=center" alt="Commander un repas" />
+                </div>
+                <h3>Réserver une table</h3>
+                <p>Réservez votre table en ligne et profitez d'une expérience culinaire exceptionnelle dans notre restaurant</p>
+            </div>
+            <div class="service-card animate-fade-up" data-delay="300">
+                <div class="service-image">
+                    <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300&h=200&fit=crop&crop=center" alt="Événements privés" />
+                </div>
+                <h3>Événements privés</h3>
+                <p>Organisez vos événements spéciaux dans notre restaurant avec un service personnalisé et une ambiance unique</p>
+            </div>
+            <div class="service-card animate-fade-up" data-delay="500">
+                <div class="service-image">
+                    <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop&crop=center" alt="Commande téléphone" />
+                </div>
+                <h3>Commande par téléphone</h3>
+                <p>Appelez-nous directement pour passer votre commande et bénéficier de nos conseils personnalisés</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="location-section animate-on-scroll">
+    <div class="location-content">
+        <div class="location-text animate-fade-up" data-delay="0">
+            <h2>Où nous trouver ?</h2>
+            <p>Découvrez notre restaurant CABESTAN situé au cœur de Casablanca, sur la magnifique Corniche d'Ain Diab.</p>
+            <div class="location-info">
+                <div class="restaurant-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <h4>CABESTAN Casablanca</h4>
+                        <p>Boulevard de la Corniche, Ain Diab<br>Casablanca, Maroc</p>
+                    </div>
+                </div>
+                <a href="https://www.google.com/maps/dir/?api=1&destination=CABESTAN+Restaurant,+Boulevard+de+la+Corniche,+Ain+Diab,+Casablanca,+Maroc" target="_blank" class="btn-location">
+                    <i class="fas fa-directions"></i>
+                    Obtenir l'itinéraire
+                </a>
+            </div>
+        </div>
+        <div class="location-map animate-fade-up" data-delay="300">
+            <div class="morocco-map" data-controller="morocco-map">
+                <div class="map-container">
+                    <!-- Carte SVG du Maroc avec overlay interactif -->
+                    <div class="map-wrapper">
+                        <img src="{{ asset('images/morocco.svg') }}" alt="Carte du Maroc" class="morocco-svg" />
+                        
+                        <!-- Overlay avec dégradé pour améliorer la lisibilité -->
+                        <div class="map-overlay"></div>
+                        
+                        <!-- Marqueur unique pour Casablanca - Position géographique correcte -->
+                        <div class="city-markers">
+                            <!-- Casablanca - Restaurant CABESTAN sur la côte atlantique -->
+                            <div class="city-marker casablanca-main" data-city="Casablanca" style="left: 57.61%; top: 10.5%;">
+                                <div class="marker-container">
+                                    <div class="pulse-ring"></div>
+                                    <div class="pulse-ring delay-1"></div>
+                                    <div class="pulse-ring delay-2"></div>
+                                    <div class="marker-pin">
+                                        <div class="pin-head">
+                                            <i class="fas fa-utensils"></i>
+                                        </div>
+                                        <div class="pin-point"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section FAQ -->
+<section class="faq-section">
+    <div class="container">
+        <div class="faq-header">
+            <h2>Questions fréquentes</h2>
+        </div>
+        
+        <div class="faq-grid">
+            <div class="faq-column">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Quels sont les horaires d'ouverture du restaurant CABESTAN ?</h3>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Nous sommes ouverts tous les jours de 12h00 à 15h00 et de 19h00 à 23h30. Le vendredi et samedi, nous restons ouverts jusqu'à minuit.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Faut-il réserver une table à l'avance ?</h3>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Nous recommandons fortement de réserver, surtout le week-end et les jours fériés. Vous pouvez réserver par téléphone ou directement via notre site web.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Proposez-vous des plats végétariens et végétaliens ?</h3>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Oui, nous avons une sélection de plats végétariens et végétaliens dans notre carte. Notre chef peut également adapter certains plats selon vos préférences alimentaires.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Acceptez-vous les groupes et événements privés ?</h3>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Nous accueillons les groupes jusqu'à 50 personnes et organisons des événements privés. Contactez-nous pour discuter de vos besoins spécifiques.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Y a-t-il un parking disponible ?</h3>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Oui, nous disposons d'un parking privé gratuit pour nos clients, situé juste à côté du restaurant sur la Corniche d'Ain Diab.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="faq-column">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Quels moyens de paiement acceptez-vous ?</h3>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Nous acceptons les espèces, les cartes bancaires (Visa, Mastercard), et les chèques. Les paiements par carte sont possibles à partir de 50 DH.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Peut-on emporter nos plats à la maison ?</h3>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Oui, nous proposons un service à emporter. Vous pouvez commander par téléphone et venir récupérer votre commande au restaurant.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Avez-vous un menu enfant ?</h3>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolument ! Nous proposons un menu spécialement conçu pour les enfants avec des portions adaptées et des plats qu'ils adorent.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Le restaurant est-il accessible aux personnes à mobilité réduite ?</h3>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Oui, notre restaurant est entièrement accessible avec une rampe d'accès et des toilettes adaptées aux personnes à mobilité réduite.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Organisez-vous des soirées à thème ou des événements spéciaux ?</h3>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Oui, nous organisons régulièrement des soirées musicales, des dégustations et des événements spéciaux. Suivez-nous sur nos réseaux sociaux pour être informé.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* ===== SECTION FAQ - CSS INLINE ===== */
+.faq-section {
+    padding: 80px 0;
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+}
+
+.faq-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.faq-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 16px;
+    letter-spacing: -0.025em;
+}
+
+.faq-header p {
+    font-size: 1.125rem;
+    color: #6b7280;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.faq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.faq-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.faq-item {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.faq-item.active {
+    border-color: #f97316 !important;
+    background: #fff7ed !important;
+}
+
+.faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 48px 32px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.faq-question:hover {
+    background: #f9fafb;
+}
+
+.faq-item.active .faq-question {
+    background: #fff7ed !important;
+}
+
+.faq-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #374151;
+    flex-shrink: 0;
+    margin-left: 16px;
+}
+
+.faq-item.active .faq-icon {
+    color: #f97316 !important;
+}
+
+.faq-question h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.faq-item.active .faq-question h3 {
+    color: #ea580c !important;
+}
+
+.faq-answer {
+    padding: 0 32px 48px 32px;
+    display: none;
+}
+
+.faq-item.active .faq-answer {
+    display: block !important;
+    animation: fadeIn 0.3s ease;
+}
+
+.faq-answer p {
+    font-size: 1.125rem;
+    color: #6b7280;
+    line-height: 1.7;
+    margin: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .faq-section {
+        padding: 60px 0;
+    }
+    
+    .faq-header h2 {
+        font-size: 2rem;
+    }
+    
+    .faq-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 0 20px;
+    }
+    
+    .faq-question {
+        padding: 40px 24px;
+    }
+    
+    .faq-answer {
+        padding: 0 24px 40px 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .faq-header h2 {
+        font-size: 1.75rem;
+    }
+    
+    .faq-question {
+        padding: 32px 20px;
+    }
+    
+    .faq-answer {
+        padding: 0 20px 32px 20px;
+    }
+}
+</style>
+
+<script>
+// FAQ Functionality - Script inline pour s'assurer qu'il fonctionne
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('FAQ script chargé');
+    
+    const faqItems = document.querySelectorAll('.faq-item');
+    console.log('Nombre d\'éléments FAQ trouvés:', faqItems.length);
+    
+    faqItems.forEach((item, index) => {
+        const question = item.querySelector('.faq-question');
+        const icon = item.querySelector('.faq-icon');
+        
+        if (question && icon) {
+            console.log('Configuration FAQ item', index);
+            
+            question.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Clic sur FAQ item', index);
+                
+                const isCurrentlyActive = item.classList.contains('active');
+                console.log('Est actuellement actif:', isCurrentlyActive);
+                
+                // Fermer tous les items
+                faqItems.forEach(otherItem => {
+                    otherItem.classList.remove('active');
+                    const otherIcon = otherItem.querySelector('.faq-icon');
+                    if (otherIcon) {
+                        otherIcon.textContent = '+';
+                    }
+                });
+                
+                // Si l'item n'était pas actif, l'ouvrir
+                if (!isCurrentlyActive) {
+                    item.classList.add('active');
+                    icon.textContent = '−';
+                    console.log('Ouverture FAQ item', index);
+                } else {
+                    console.log('Fermeture FAQ item', index);
+                }
+            });
+        } else {
+            console.log('Éléments manquants pour FAQ item', index);
+        }
+    });
+});
+</script>
+
+<script>
+// Footer expandable sections
+document.addEventListener('DOMContentLoaded', function() {
+    const expandableLinks = document.querySelectorAll('.expandable-link');
+    
+    expandableLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetId = this.getAttribute('data-target');
+            const content = document.getElementById(targetId);
+            const isActive = this.classList.contains('active');
+            
+            // Fermer tous les autres
+            expandableLinks.forEach(otherLink => {
+                otherLink.classList.remove('active');
+                const otherTargetId = otherLink.getAttribute('data-target');
+                const otherContent = document.getElementById(otherTargetId);
+                if (otherContent) {
+                    otherContent.classList.remove('active');
+                }
+            });
+            
+            // Toggle le current
+            if (!isActive) {
+                this.classList.add('active');
+                content.classList.add('active');
+            }
+        });
+    });
+});
+</script>
+
+<!-- BOUTON FLOTTANT RÉSERVATION -->
+<div class="floating-reservation-btn" id="floatingReservationBtn">
+    <div class="btn-content">
+        <i class="fas fa-calendar-plus"></i>
+        <span>Réserver une table</span>
+    </div>
+    <div class="btn-pulse"></div>
+</div>
+
+<!-- MODALE RÉSERVATION PUBLIQUE -->
+<div class="reservation-modal-overlay" id="publicReservationModal">
+    <div class="reservation-modal">
+        <div class="modal-header">
+            <h3>Réserver votre table</h3>
+            <button class="close-btn" onclick="closePublicReservationModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="publicReservationForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nom complet</label>
+                        <input type="text" id="publicClientName" placeholder="Votre nom complet" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Téléphone</label>
+                        <input type="tel" id="publicPhone" placeholder="+212 6 XX XX XX XX" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="publicDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Heure</label>
+                        <input type="time" id="publicTime" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre de personnes</label>
+                        <select id="publicPersons" required>
+                            <option value="">Choisir...</option>
+                            <option value="1">1 personne</option>
+                            <option value="2">2 personnes</option>
+                            <option value="3">3 personnes</option>
+                            <option value="4">4 personnes</option>
+                            <option value="5">5 personnes</option>
+                            <option value="6">6 personnes</option>
+                            <option value="7">7 personnes</option>
+                            <option value="8">8 personnes</option>
+                            <option value="9">9 personnes</option>
+                            <option value="10">10 personnes</option>
+                            <option value="more">Plus de 10 personnes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Demandes spéciales (optionnel)</label>
+                    <textarea id="publicNotes" placeholder="Allergies, anniversaire, demandes particulières..." rows="3"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" onclick="closePublicReservationModal()">Annuler</button>
+            <button type="button" class="btn-confirm" onclick="submitPublicReservation()">Confirmer la réservation</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* BOUTON FLOTTANT RÉSERVATION */
+.floating-reservation-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: #f8f8f8;
+    border-radius: 60px;
+    padding: 24px 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    overflow: hidden;
+    min-width: 200px;
+    min-height: 80px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-reservation-btn:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.floating-reservation-btn:active {
+    transform: translateY(-3px) scale(1.01);
+}
+
+.btn-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    position: relative;
+    z-index: 2;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+.btn-content i {
+    font-size: 20px;
+    color: #e5e7eb;
+}
+
+.btn-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(229, 231, 235, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border-radius: 60px;
+    transform: translate(-50%, -50%) scale(0);
+    animation: luxuryPulse 3s infinite;
+}
+
+@keyframes luxuryPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.4;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 0;
+    }
+}
+
+/* MODALE RÉSERVATION PUBLIQUE */
+.reservation-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.reservation-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.reservation-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    transform: scale(0.8) translateY(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reservation-modal-overlay.active .reservation-modal {
+    transform: scale(1) translateY(0);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: white;
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 20px 20px 0 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    color: #f8f8f8;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #e5e7eb;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background: rgba(229, 231, 235, 0.2);
+    transform: scale(1.1);
+}
+
+.modal-body {
+    padding: 32px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #ff8c00;
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.modal-actions {
+    padding: 24px 32px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+}
+
+.btn-cancel,
+.btn-confirm {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-cancel {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-cancel:hover {
+    background: #e5e7eb;
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff7300 100%);
+    color: white;
+}
+
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 140, 0, 0.3);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .floating-reservation-btn {
+        bottom: 20px;
+        right: 20px;
+        min-width: 180px;
+        min-height: 70px;
+        padding: 20px 16px;
+    }
+    
+    .btn-content {
+        font-size: 13px;
+        gap: 6px;
+    }
+    
+    .btn-content i {
+        font-size: 16px;
+    }
+    
+    .reservation-modal {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-actions {
+        padding: 20px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .floating-reservation-btn {
+        min-width: 160px;
+        min-height: 60px;
+        padding: 16px 12px;
+    }
+    
+    .btn-content {
+        font-size: 12px;
+        gap: 4px;
+    }
+    
+    .btn-content i {
+        font-size: 14px;
+    }
+}
+</style>
+
+<script>
+// BOUTON FLOTTANT ET MODALE RÉSERVATION
+document.addEventListener('DOMContentLoaded', function() {
+    const floatingBtn = document.getElementById('floatingReservationBtn');
+    const modal = document.getElementById('publicReservationModal');
+    
+    // Définir date et heure par défaut
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const defaultDate = tomorrow.toISOString().split('T')[0];
+    const defaultTime = '19:00'; // 19h par défaut
+    
+    document.getElementById('publicDate').value = defaultDate;
+    document.getElementById('publicTime').value = defaultTime;
+    
+    // Ouvrir la modale au clic sur le bouton flottant
+    floatingBtn.addEventListener('click', function() {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+    
+    // Fermer la modale en cliquant sur l'overlay
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closePublicReservationModal();
+        }
+    });
+});
+
+function closePublicReservationModal() {
+    const modal = document.getElementById('publicReservationModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function submitPublicReservation() {
+    const clientName = document.getElementById('publicClientName').value;
+    const phone = document.getElementById('publicPhone').value;
+    const date = document.getElementById('publicDate').value;
+    const time = document.getElementById('publicTime').value;
+    const persons = document.getElementById('publicPersons').value;
+    const notes = document.getElementById('publicNotes').value;
+    
+    // Validation simple
+    if (!clientName.trim()) {
+        alert('Veuillez saisir votre nom complet');
+        document.getElementById('publicClientName').focus();
+        return;
+    }
+    
+    if (!phone.trim()) {
+        alert('Veuillez saisir votre numéro de téléphone');
+        document.getElementById('publicPhone').focus();
+        return;
+    }
+    
+    if (!date) {
+        alert('Veuillez sélectionner une date');
+        document.getElementById('publicDate').focus();
+        return;
+    }
+    
+    if (!time) {
+        alert('Veuillez sélectionner une heure');
+        document.getElementById('publicTime').focus();
+        return;
+    }
+    
+    if (!persons) {
+        alert('Veuillez indiquer le nombre de personnes');
+        document.getElementById('publicPersons').focus();
+        return;
+    }
+    
+    // Créer un formulaire pour envoyer la réservation
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/reservation-publique';
+    form.style.display = 'none';
+    
+    const inputs = [
+        { name: 'client_name', value: clientName },
+        { name: 'phone', value: phone },
+        { name: 'date', value: date },
+        { name: 'time', value: time },
+        { name: 'persons', value: persons },
+        { name: 'notes', value: notes }
+    ];
+    
+    inputs.forEach(inputData => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = inputData.name;
+        input.value = inputData.value;
+        form.appendChild(input);
+    });
+    
+    document.body.appendChild(form);
+    
+    // Fermer la modale
+    closePublicReservationModal();
+    
+    // Soumettre le formulaire
+    form.submit();
+}
+</script>
+
+<!-- FOOTER SOUS-PAGE -->
+<footer class="app-footer">
+    <div class="footer-container">
+        <div class="footer-content">
+            <!-- Colonne Nos valeurs -->
+            <div class="footer-column">
+                <h4>Nos valeurs</h4>
+                <div class="footer-description">
+                    <p>Depuis 1926, CABESTAN fusionne tradition et modernité pour vous offrir une expérience culinaire unique d'exception.</p>
+                    <p>Nous croyons en la beauté des détails, la passion de la création et le pouvoir de transformer chaque moment en un souvenir unique.</p>
+                    <p>Rejoignez-nous dans ce voyage à travers l'art, la culture et l'histoire.</p>
+                </div>
+            </div>
+
+            <!-- Colonne À propos -->
+            <div class="footer-column">
+                <h4>À propos</h4>
+                <ul>
+                    <li>
+                        <a href="#" class="expandable-link" data-target="qui-sommes-nous">
+                            Qui sommes nous ?
+                            <i class="fas fa-chevron-down"></i>
+                        </a>
+                        <div class="expandable-content" id="qui-sommes-nous">
+                            <p>CABESTAN est un restaurant emblématique de Casablanca, situé sur la magnifique Corniche d'Ain Diab. Depuis 1926, nous perpétuons l'excellence culinaire marocaine avec une touche moderne, offrant à nos clients une expérience gastronomique inoubliable face à l'océan Atlantique.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="#" class="expandable-link" data-target="consignes-securite">
+                            Consignes de sécurité
+                            <i class="fas fa-chevron-down"></i>
+                        </a>
+                        <div class="expandable-content" id="consignes-securite">
+                            <p><strong>Hygiène et sécurité alimentaire :</strong></p>
+                            <ul>
+                                <li>Respect strict des normes HACCP</li>
+                                <li>Contrôle qualité quotidien des produits</li>
+                                <li>Formation continue du personnel</li>
+                                <li>Traçabilité complète des ingrédients</li>
+                            </ul>
+                            <p><strong>Sécurité des clients :</strong></p>
+                            <ul>
+                                <li>Protocoles sanitaires renforcés</li>
+                                <li>Espaces désinfectés régulièrement</li>
+                                <li>Personnel formé aux gestes barrières</li>
+                                <li>Système de ventilation optimisé</li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Section centrale CABESTAN -->
+            <div class="footer-center">
+                <div class="cabestan-info">
+                    <span class="ocean-view-small">OCEAN VIEW</span>
+                    <h3 class="cabestan-name">CABESTAN</h3>
+                    <span class="since-small">SINCE 1926</span>
+                    <p class="restaurant-desc">Restaurant du Groupe Cabestan</p>
+                    <div class="address-small">
+                        <p>90, Boulevard de la Corniche</p>
+                        <p>Phare El Hank</p>
+                        <p>Casablanca – Maroc</p>
+                    </div>
+                    <p class="copyright-small">©CABESTAN OCEAN VIEW 2024</p>
+                </div>
+            </div>
+
+            <!-- Colonne Réseaux sociaux -->
+            <div class="footer-column">
+                <h4>Réseaux sociaux</h4>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/" target="_blank" class="social-link facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.instagram.com/" target="_blank" class="social-link instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.pinterest.com/" target="_blank" class="social-link pinterest">
+                        <i class="fab fa-pinterest-p"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Colonne Contact -->
+            <div class="footer-column">
+                <h4>Contact</h4>
+                <div class="contact-info">
+                    <p>90, Boulevard de la Corniche</p>
+                    <p>Phare El Hank, Casablanca</p>
+                    <p>Email : contact@cabestan.ma</p>
+                    <p>Tél : +212 5 22 39 13 90</p>
+                    <p>Du Lundi au Dimanche : 12h - 00h</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section devise et paiements en bas -->
+        <div class="footer-bottom">
+            <div class="footer-bottom-left">
+                <p>© 2024, CABESTAN OCEAN VIEW. Restaurant gastronomique à Casablanca</p>
+            </div>
+            <div class="footer-bottom-right">
+                <!-- Sélecteur de devise -->
+                <div class="currency-selector-small">
+                    <select class="currency-select">
+                        <option value="mad">🇲🇦 Maroc (MAD د.م)</option>
+                        <option value="usd">🇺🇸 USA (USD $)</option>
+                        <option value="eur">🇪🇺 Europe (EUR €)</option>
+                    </select>
+                </div>
+                
+                <!-- Moyens de paiement -->
+                <div class="payment-methods-small">
+                    <div class="payment-card-small amex">AMEX</div>
+                    <div class="payment-card-small apple-pay">
+                        <i class="fab fa-apple"></i> Pay
+                    </div>
+                    <div class="payment-card-small cb">CB</div>
+                    <div class="payment-card-small mastercard">
+                        <div class="mc-circles-small">
+                            <div class="circle-small red"></div>
+                            <div class="circle-small yellow"></div>
+                        </div>
+                    </div>
+                    <div class="payment-card-small paypal">PayPal</div>
+                    <div class="payment-card-small visa">VISA</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+{% endblock %}

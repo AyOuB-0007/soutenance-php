@@ -1,3 +1,19 @@
-body {
-    background-color: skyblue;
-}
+/* BASE */
+@import "./clean.css";
+
+/* EXISTANT – NE PAS ENLEVER */
+@import "./base.css";
+@import "./modern.css";
+@import "./sidebar.css";
+@import "./login.css";
+@import "./shop.css";
+@import "./cart.css";
+@import "./admin.css";
+@import "./rustic_menu.css";
+@import "./rustic_home.css";
+@import "./carousel.css";
+@import "./menu_page.css";
+@import "./pages.css";
+
+/* DASHBOARD – TOUJOURS EN DERNIER */
+@import "./dashboard.css";

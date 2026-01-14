@@ -16,13 +16,14 @@ return [
         'path' => './assets/app.js',
         'entrypoint' => true,
     ],
-    '@hotwired/stimulus' => [
-        'version' => '3.2.2',
+    // Manually added entry for product_carousel Stimulus controller
+    'product_carousel' => [
+        'path' => './assets/controllers/product_carousel_controller.js',
+        'entrypoint' => true,
     ],
-    '@symfony/stimulus-bundle' => [
-        'path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js',
-    ],
-    '@hotwired/turbo' => [
-        'version' => '7.3.0',
+    // Modern animations controller
+    'modern_animations' => [
+        'path' => './assets/controllers/modern_animations_controller.js',
+        'entrypoint' => true,
     ],
 ];

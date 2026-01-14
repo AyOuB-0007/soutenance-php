@@ -7,5 +7,50 @@
 # To list all registered routes, run the following command:
 #   bin/console debug:router
 
-controllers:
-    resource: routing.controllers
+app_home:
+    path: /
+    controller: App\Controller\HomeController::index
+
+app_dashboard:
+    path: /dashboard
+    controller: App\Controller\HomeController::dashboard
+    methods: [GET, POST]
+
+dashboard_create_category:
+    path: /dashboard/create-category
+    controller: App\Controller\HomeController::createCategoryFromDashboard
+    methods: [POST]
+
+app_login:
+    path: /login
+    controller: App\Controller\SecurityController::login
+
+app_logout:
+    path: /logout
+    controller: App\Controller\SecurityController::logout
+
+app_shop:
+    path: /shop
+    controller: App\Controller\ShopController::shop
+
+app_cart:
+    path: /cart
+    controller: App\Controller\ShopController::cart
+
+app_restaurant_menu:
+    path: /notre-carte
+    controller: App\Controller\HomeController::displayMenu
+
+app_my_reservations:
+    path: /my-reservations
+    controller: App\Controller\UserReservationController::myReservations
+
+app_update_my_reservation:
+    path: /update-my-reservation
+    controller: App\Controller\UserReservationController::updateMyReservation
+    methods: [POST]
+
+app_delete_my_reservation:
+    path: /delete-my-reservation
+    controller: App\Controller\UserReservationController::deleteMyReservation
+    methods: [POST]

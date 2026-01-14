@@ -1,0 +1,16 @@
+2026-01-14 15:57:38 - Action: edit, ID: , Name: Briouates aux Crevettes, Price: 45, Category: 5
+2026-01-14 15:57:38 - Validation failed - Action: edit, Name: Briouates aux Crevettes, Price: 45, Category: 5, ProductId: 
+2026-01-14 16:00:14 - Action: edit, ID: 6, Name: Briouates aux Crevettes, Price: 45, Category: 5
+2026-01-14 16:00:14 - Product found, updating...
+2026-01-14 16:00:14 - Product updated successfully
+2026-01-14 16:02:21 - Action: create, ID: , Name: teste, Price: 5111, Category: 3
+2026-01-14 16:02:21 - Product created successfully
+2026-01-14 16:02:33 - Action: edit, ID: 50, Name: ghamoii, Price: 5111, Category: 3
+2026-01-14 16:02:33 - Product found, updating...
+2026-01-14 16:02:33 - Product updated successfully
+2026-01-14 16:04:40 - Action: edit, ID: 50, Name: salmaneeeee, Price: 5111, Category: 3
+2026-01-14 16:04:40 - Product found, updating...
+2026-01-14 16:04:40 - Product updated successfully
+2026-01-14 16:18:02 - DELETE REQUEST - Product ID: 50
+2026-01-14 16:18:02 - Product found, deleting: salmaneeeee
+2026-01-14 16:18:02 - Product deleted successfully

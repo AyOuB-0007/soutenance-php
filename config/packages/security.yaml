@@ -5,7 +5,17 @@ security:
 
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        users_in_memory: { memory: null }
+        personnel_provider:
+            entity:
+                class: App\Entity\Personnel
+                property: login
+        user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+        chain_provider:
+            chain:
+                providers: ['personnel_provider', 'user_provider']
 
     firewalls:
         dev:
@@ -14,7 +24,16 @@ security:
             security: false
         main:
             lazy: true
-            provider: users_in_memory
+            provider: chain_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+                username_parameter: login
+                password_parameter: password
+            logout:
+                path: app_logout
+                target: app_home
 
             # Activate different ways to authenticate:
             # https://symfony.com/doc/current/security.html#the-firewall
