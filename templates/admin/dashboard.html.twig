@@ -2,11 +2,6 @@
 
 {% block title %}Admin Dashboard{% endblock %}
 
-{% block javascripts %}
-    {{ parent() }}
-    <script src="{{ asset('js/dashboard-simple.js') }}"></script>
-{% endblock %}
-
 {% block body %}
 <style>
 /* RESET AND OVERRIDE ALL EXISTING STYLES */
@@ -1719,6 +1714,18 @@
 // Script simple sans erreurs de syntaxe
 console.log('Template script loaded');
 
+// VARIABLES GLOBALES
+let currentDeleteAction = null;
+let currentAction = '';
+let currentEmployeeId = '';
+let currentProductAction = '';
+let currentProductId = '';
+let currentReservationAction = '';
+let currentReservationId = '';
+let deleteItemType = '';
+let deleteItemId = '';
+let clickedButton = null;
+
 // Fonction de test simple
 function simpleTest() {
     alert('Test simple fonctionne !');
@@ -1731,21 +1738,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// CONFIRMATION DELETE MODAL
-function openDeleteConfirmModal(type, id, name) {
-    currentDeleteAction = { type, id, name };
-    
-    const modal = document.getElementById('deleteConfirmModal');
-    const modalContent = document.getElementById('deleteConfirmModalContent');
-    const message = document.getElementById('deleteConfirmMessage');
-    
-    message.innerHTML = `Êtes-vous sûr de vouloir supprimer la catégorie <strong>"${name}"</strong> ?<br>Cette action est irréversible.`;
-    
-    modal.classList.add('active');
-    setTimeout(() => {
-        modalContent.classList.add('active');
-    }, 50);
-}
+// CONFIRMATION DELETE MODAL - Fonction supprimée (dupliquée plus bas)
 
 function closeDeleteConfirmModal() {
     const modal = document.getElementById('deleteConfirmModal');
@@ -1757,51 +1750,10 @@ function closeDeleteConfirmModal() {
     setTimeout(() => {
         modal.classList.remove('active');
         modalContent.classList.remove('closing');
-        currentDeleteAction = null;
+        deleteItemType = '';
+        deleteItemId = '';
     }, 300);
 }
-
-function executeDelete() {
-    if (!currentDeleteAction) return;
-    
-    const { type, id, name } = currentDeleteAction;
-    
-    // Créer un formulaire pour supprimer
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/dashboard';
-    form.style.display = 'none';
-    
-    const actionInput = document.createElement('input');
-    actionInput.type = 'hidden';
-    actionInput.name = 'delete_category';
-    actionInput.value = '1';
-    
-    const idInput = document.createElement('input');
-    idInput.type = 'hidden';
-    idInput.name = 'category_id';
-    idInput.value = id;
-    
-    const typeInput = document.createElement('input');
-    typeInput.type = 'hidden';
-    typeInput.name = 'category_type';
-    typeInput.value = type;
-    
-    form.appendChild(actionInput);
-    form.appendChild(idInput);
-    form.appendChild(typeInput);
-    document.body.appendChild(form);
-    
-    // Fermer la modale
-    closeDeleteConfirmModal();
-    
-    // Soumettre le formulaire
-    form.submit();
-}
-
-let currentAction = '';
-let currentEmployeeId = '';
-let clickedButton = null;
 
 // FONCTION DE CHANGEMENT DE SECTION
 function showSection(sectionName) {
@@ -2644,7 +2596,7 @@ function updateProductCategory(id) {
 }
 
 function deleteProductCategory(id, name) {
-    openDeleteConfirmModal('product', id, name);
+    openDeleteConfirmModal('category', id, name);  // Correction: 'category' au lieu de 'product'
 }
 
 // PRODUCT ACTIONS
@@ -2656,13 +2608,18 @@ function deleteProduct(id, name) {
     openDeleteConfirmModal('product', id, name);
 }
 
-// Variables globales pour la suppression
-let deleteItemType = '';
-let deleteItemId = '';
-
+// FONCTIONS MODALES RESTAURÉES (utilisant les variables globales déclarées en haut)
 function openDeleteConfirmModal(type, id, name) {
+    console.log('=== openDeleteConfirmModal called ===');
+    console.log('Type:', type);
+    console.log('ID:', id);
+    console.log('Name:', name);
+    
     deleteItemType = type;
     deleteItemId = id;
+    
+    console.log('deleteItemType set to:', deleteItemType);
+    console.log('deleteItemId set to:', deleteItemId);
     
     const modal = document.getElementById('deleteConfirmModal');
     const modalContent = document.getElementById('deleteConfirmModalContent');
@@ -2701,65 +2658,64 @@ function closeDeleteConfirmModal() {
 }
 
 function confirmDelete() {
-    console.log('confirmDelete called');
+    console.log('=== confirmDelete called ===');
     console.log('deleteItemType:', deleteItemType);
     console.log('deleteItemId:', deleteItemId);
+    console.log('typeof deleteItemId:', typeof deleteItemId);
+    
+    if (!deleteItemType || !deleteItemId) {
+        console.error('Missing deleteItemType or deleteItemId');
+        return;
+    }
+    
+    let url = '';
     
     if (deleteItemType === 'product') {
-        // Supprimer un produit
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '{{ path('app_dashboard') }}';
-        
-        const deleteInput = document.createElement('input');
-        deleteInput.type = 'hidden';
-        deleteInput.name = 'delete_product';
-        deleteInput.value = '1';
-        form.appendChild(deleteInput);
-        
-        const idInput = document.createElement('input');
-        idInput.type = 'hidden';
-        idInput.name = 'product_id';
-        idInput.value = deleteItemId;
-        form.appendChild(idInput);
-        
-        console.log('Form created:', form);
-        console.log('Form HTML:', form.innerHTML);
-        console.log('Submitting delete form for product:', deleteItemId);
-        
-        document.body.appendChild(form);
-        form.submit();
-        
+        url = `/dashboard/delete-product/${deleteItemId}`;
     } else if (deleteItemType === 'category') {
-        // Supprimer une catégorie (ancienne logique)
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/dashboard';
-        
-        const actionInput = document.createElement('input');
-        actionInput.type = 'hidden';
-        actionInput.name = 'delete_category';
-        actionInput.value = '1';
-        form.appendChild(actionInput);
-        
-        const idInput = document.createElement('input');
-        idInput.type = 'hidden';
-        idInput.name = 'category_id';
-        idInput.value = deleteItemId;
-        form.appendChild(idInput);
-        
-        const typeInput = document.createElement('input');
-        typeInput.type = 'hidden';
-        typeInput.name = 'category_type';
-        typeInput.value = deleteItemType;
-        form.appendChild(typeInput);
-        
-        document.body.appendChild(form);
-        form.submit();
-        
+        url = `/dashboard/delete-category/${deleteItemId}`;
+    } else if (deleteItemType === 'employee') {
+        url = `/dashboard/delete-employee/${deleteItemId}`;
     } else {
-        console.log('deleteItemType is not recognized:', deleteItemType);
+        console.error('Unknown deleteItemType:', deleteItemType);
+        return;
     }
+    
+    console.log('URL to call:', url);
+    console.log('Sending DELETE request...');
+    
+    // Effectuer la suppression via AJAX
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Delete response:', data);
+        
+        if (data.success) {
+            // Fermer la modal
+            closeDeleteConfirmModal();
+            
+            // Recharger la page pour voir les changements
+            window.location.reload();
+        } else {
+            console.error('Delete failed:', data.error);
+            // Ne plus afficher d'alerte, juste recharger la page
+            window.location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Erreur lors de la suppression:', error);
+        // Ne plus afficher d'alerte, juste recharger la page
+        window.location.reload();
+    });
 }
 
 // EMPLOYEE CATEGORY ACTIONS
@@ -2879,7 +2835,13 @@ function updateEmployeeCategory(id) {
 }
 
 function deleteEmployeeCategory(id, name) {
-    openDeleteConfirmModal('employee', id, name);
+    // Les catégories d'employés sont des groupes logiques, pas des entités de base de données
+    // On ne peut donc pas les supprimer
+    console.log('deleteEmployeeCategory called for:', id, name);
+    console.log('Employee categories cannot be deleted as they are logical groups, not database entities');
+    
+    // Ne rien faire - les catégories d'employés ne peuvent pas être supprimées
+    // car elles sont des groupes d'affichage, pas des entités de base de données
 }
 
 // RESET MODAL FUNCTIONS
@@ -2935,8 +2897,7 @@ document.getElementById('employeeModal').addEventListener('click', function(e) {
 });
 
 // PRODUCT MODAL FUNCTIONS
-let currentProductAction = '';
-let currentProductId = '';
+// Variables déjà déclarées en haut du script
 
 function openProductModal(action, id = '', name = '', description = '', price = '', categoryId = '', imageUrl = '') {
     currentProductAction = action;
@@ -3172,8 +3133,7 @@ document.getElementById('deleteConfirmModal').addEventListener('click', function
 });
 
 // RESERVATION MODAL FUNCTIONS
-let currentReservationAction = '';
-let currentReservationId = '';
+// Variables déjà déclarées en haut du script
 
 function openReservationModal(action, id = '', clientName = '', date = '', time = '', persons = '', phone = '', notes = '', tableId = '') {
     currentReservationAction = action;

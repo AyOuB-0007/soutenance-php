@@ -1,9 +1,9 @@
-// DASHBOARD SIMPLE - SANS ERREURS
+// DASHBOARD SIMPLE - VERSION SIMPLIFIÉE SANS CONFLITS
 console.log('Dashboard simple loaded');
 
-// FONCTION SIMPLE POUR CHANGER DE SECTION
-function showSection(sectionName) {
-    console.log('showSection called:', sectionName);
+// FONCTION SIMPLE POUR CHANGER DE SECTION (backup au cas où)
+function showSectionBackup(sectionName) {
+    console.log('showSectionBackup called:', sectionName);
     
     // Retirer la classe active de toutes les cartes
     var cards = document.querySelectorAll('.stat-card');
@@ -32,51 +32,6 @@ function showSection(sectionName) {
     }
 }
 
-// FONCTIONS DE TEST POUR LES BOUTONS MODIFIER
-function testEditProductCategory() {
-    console.log('TEST: editProductCategory called');
-    alert('Test editProductCategory - Cette fonction fonctionne !');
-}
-
-function testEditEmployeeCategory() {
-    console.log('TEST: editEmployeeCategory called');
-    alert('Test editEmployeeCategory - Cette fonction fonctionne !');
-}
-
-// FONCTIONS MODALES SIMPLES
-function openCategoryChoiceModal() {
-    console.log('openCategoryChoiceModal called');
-    var modal = document.getElementById('categoryChoiceModal');
-    if (modal) {
-        modal.classList.add('active');
-        setTimeout(function() {
-            var modalContent = document.getElementById('categoryChoiceModalContent');
-            if (modalContent) {
-                modalContent.classList.add('active');
-            }
-        }, 50);
-    }
-}
-
-function closeCategoryChoiceModal() {
-    var modal = document.getElementById('categoryChoiceModal');
-    var modalContent = document.getElementById('categoryChoiceModalContent');
-    
-    if (modalContent) {
-        modalContent.classList.add('closing');
-        modalContent.classList.remove('active');
-    }
-    
-    setTimeout(function() {
-        if (modal) {
-            modal.classList.remove('active');
-        }
-        if (modalContent) {
-            modalContent.classList.remove('closing');
-        }
-    }, 300);
-}
-
 // Test au chargement
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Dashboard simple JavaScript loaded successfully');
@@ -91,7 +46,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Test des modales
     var productModal = document.getElementById('productCategoryModal');
     var employeeModal = document.getElementById('employeeCategoryModal');
+    var deleteModal = document.getElementById('deleteConfirmModal');
     
     console.log('Product modal found:', !!productModal);
     console.log('Employee modal found:', !!employeeModal);
+    console.log('Delete modal found:', !!deleteModal);
+    
+    // Vérifier que les fonctions principales existent
+    console.log('showSection function exists:', typeof showSection !== 'undefined');
+    console.log('openProductModal function exists:', typeof openProductModal !== 'undefined');
+    console.log('openEmployeeModal function exists:', typeof openEmployeeModal !== 'undefined');
+    console.log('deleteProduct function exists:', typeof deleteProduct !== 'undefined');
 });

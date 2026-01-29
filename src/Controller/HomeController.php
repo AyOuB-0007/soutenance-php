@@ -657,4 +657,66 @@ class HomeController extends AbstractController
         // Rediriger vers la page d'accueil
         return $this->redirectToRoute('app_home');
     }
+
+    public function deleteProduct(int $id, ArticleMenuRepository $articleMenuRepository, EntityManagerInterface $entityManager): Response
+    {
+        try {
+            $product = $articleMenuRepository->find($id);
+            
+            if (!$product) {
+                return $this->json(['success' => false, 'error' => 'Produit introuvable']);
+            }
+            
+            $entityManager->remove($product);
+            $entityManager->flush();
+            
+            return $this->json(['success' => true, 'message' => 'Produit supprimé avec succès']);
+            
+        } catch (\Exception $e) {
+            return $this->json(['success' => false, 'error' => 'Erreur lors de la suppression: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deleteCategory(int $id, MenuRepository $menuRepository, EntityManagerInterface $entityManager): Response
+    {
+        try {
+            $category = $menuRepository->find($id);
+            
+            if (!$category) {
+                return $this->json(['success' => false, 'error' => 'Catégorie introuvable']);
+            }
+            
+            // Vérifier s'il y a des produits dans cette catégorie
+            if ($category->getArticleMenus()->count() > 0) {
+                return $this->json(['success' => false, 'error' => 'Impossible de supprimer une catégorie qui contient des produits']);
+            }
+            
+            $entityManager->remove($category);
+            $entityManager->flush();
+            
+            return $this->json(['success' => true, 'message' => 'Catégorie supprimée avec succès']);
+            
+        } catch (\Exception $e) {
+            return $this->json(['success' => false, 'error' => 'Erreur lors de la suppression: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deleteEmployee(int $id, PersonnelRepository $personnelRepository, EntityManagerInterface $entityManager): Response
+    {
+        try {
+            $employee = $personnelRepository->find($id);
+            
+            if (!$employee) {
+                return $this->json(['success' => false, 'error' => 'Employé introuvable']);
+            }
+            
+            $entityManager->remove($employee);
+            $entityManager->flush();
+            
+            return $this->json(['success' => true, 'message' => 'Employé supprimé avec succès']);
+            
+        } catch (\Exception $e) {
+            return $this->json(['success' => false, 'error' => 'Erreur lors de la suppression: ' . $e->getMessage()]);
+        }
+    }
 }

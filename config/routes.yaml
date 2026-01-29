@@ -21,6 +21,21 @@ dashboard_create_category:
     controller: App\Controller\HomeController::createCategoryFromDashboard
     methods: [POST]
 
+dashboard_delete_product:
+    path: /dashboard/delete-product/{id}
+    controller: App\Controller\HomeController::deleteProduct
+    methods: [POST]
+
+dashboard_delete_category:
+    path: /dashboard/delete-category/{id}
+    controller: App\Controller\HomeController::deleteCategory
+    methods: [POST]
+
+dashboard_delete_employee:
+    path: /dashboard/delete-employee/{id}
+    controller: App\Controller\HomeController::deleteEmployee
+    methods: [POST]
+
 app_login:
     path: /login
     controller: App\Controller\SecurityController::login

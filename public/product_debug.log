@@ -14,3 +14,24 @@
 2026-01-14 16:18:02 - DELETE REQUEST - Product ID: 50
 2026-01-14 16:18:02 - Product found, deleting: salmaneeeee
 2026-01-14 16:18:02 - Product deleted successfully
+2026-01-14 18:42:08 - DELETE REQUEST - Product ID: 14
+2026-01-14 18:42:08 - Product found, deleting: Méchoui d'Agneau
+2026-01-14 18:42:08 - Product deleted successfully
+2026-01-14 18:42:17 - DELETE REQUEST - Product ID: 14
+2026-01-14 18:42:17 - Product not found
+2026-01-14 19:29:06 - Action: create, ID: , Name: teste, Price: 15, Category: 3
+2026-01-14 19:29:06 - Product created successfully
+2026-01-14 19:29:23 - Action: edit, ID: 51, Name: ghali, Price: 15, Category: 3
+2026-01-14 19:29:23 - Product found, updating...
+2026-01-14 19:29:23 - Product updated successfully
+2026-01-14 19:29:26 - Action: edit, ID: 51, Name: ghali, Price: 15, Category: 3
+2026-01-14 19:29:26 - Product found, updating...
+2026-01-14 19:29:26 - Product updated successfully
+2026-01-14 19:29:36 - DELETE REQUEST - Product ID: 51
+2026-01-14 19:29:36 - Product found, deleting: ghali
+2026-01-14 19:29:36 - Product deleted successfully
+2026-01-14 19:30:38 - DELETE REQUEST - Product ID: 15
+2026-01-14 19:30:38 - Product found, deleting: Kefta aux Œufs
+2026-01-14 19:30:38 - Product deleted successfully
+2026-01-14 19:30:47 - DELETE REQUEST - Product ID: 15
+2026-01-14 19:30:47 - Product not found
