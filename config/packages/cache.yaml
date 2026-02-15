@@ -3,8 +3,8 @@ framework:
         # Unique name of your app: used to compute stable namespaces for cache keys.
         prefix_seed: restaurant_app
         
-        # APCu pour de meilleures performances
-        app: cache.adapter.apcu
+        # Filesystem cache (compatible partout)
+        app: cache.adapter.filesystem
         
         # Pools de cache optimisés
         pools:
