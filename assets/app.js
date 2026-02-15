@@ -6,7 +6,6 @@
  */
 import './styles/app.css';
 
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
 // FAQ Functionality
 document.addEventListener('DOMContentLoaded', function() {
     const faqItems = document.querySelectorAll('.faq-item');
@@ -30,7 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 item.classList.add('active');
                 icon.textContent = '−';
             }
-            // Si l'item était déjà actif, il reste fermé (déjà fait ci-dessus)
         });
     });
 });

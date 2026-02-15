@@ -6,13 +6,15 @@
         <title>{% block title %}Gestion Restaurant{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🍽️</text></svg>">
         
-        {# Google Fonts - Inter & Playfair Display #}
+        {# Google Fonts - Inter & Playfair Display - Optimisé #}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+        <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
         
-        {# Font Awesome Icons #}
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        {# Font Awesome Icons - Optimisé #}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+        <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
 
         {% block stylesheets %}
             <link rel="stylesheet" href="/styles/app.css">
@@ -20,8 +22,8 @@
 
         {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
-            <script src="{{ asset('scroll-animations.js') }}"></script>
-            <script src="{{ asset('js/faq.js') }}"></script>
+            <script src="{{ asset('scroll-animations.js') }}" defer></script>
+            <script src="{{ asset('js/faq.js') }}" defer></script>
         {% endblock %}
     </head>
 
@@ -451,12 +453,9 @@
             }
 
             function openLoginModal() {
-                console.log('openLoginModal called');
                 const modal = document.getElementById('loginModal');
-                console.log('Modal element:', modal);
                 
                 if (!modal) {
-                    console.error('Modal loginModal not found!');
                     return;
                 }
                 

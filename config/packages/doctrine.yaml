@@ -20,6 +20,13 @@ doctrine:
                 alias: App
         controller_resolver:
             auto_mapping: false
+        # Cache de métadonnées pour dev aussi
+        metadata_cache_driver:
+            type: pool
+            pool: doctrine.system_cache_pool
+        query_cache_driver:
+            type: pool
+            pool: doctrine.system_cache_pool
 
 when@test:
     doctrine:
@@ -30,17 +37,21 @@ when@test:
 when@prod:
     doctrine:
         orm:
+            auto_generate_proxy_classes: false
             query_cache_driver:
                 type: pool
                 pool: doctrine.system_cache_pool
             result_cache_driver:
                 type: pool
                 pool: doctrine.result_cache_pool
+            metadata_cache_driver:
+                type: pool
+                pool: doctrine.system_cache_pool
 
     framework:
         cache:
             pools:
                 doctrine.result_cache_pool:
-                    adapter: cache.app
+                    adapter: cache.adapter.filesystem
                 doctrine.system_cache_pool:
-                    adapter: cache.system
+                    adapter: cache.adapter.filesystem
